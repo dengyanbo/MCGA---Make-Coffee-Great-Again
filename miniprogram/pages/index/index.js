@@ -1,185 +1,102 @@
-// index.js
+const app = getApp()
+
 Page({
   data: {
-    showTip: false,
-    powerList: [
-      {
-        title: "云托管",
-        tip: "不限语言的全托管容器服务",
-        showItem: false,
-        item: [
-          {
-            type: "cloudbaserun",
-            title: "云托管调用",
-          },
-        ],
-      },
-      {
-        title: "云函数",
-        tip: "安全、免鉴权运行业务代码",
-        showItem: false,
-        item: [
-          {
-            type: "getOpenId",
-            title: "获取OpenId",
-          },
-          {
-            type: "getMiniProgramCode",
-            title: "生成小程序码",
-          },
-        ],
-      },
-      {
-        title: "数据库",
-        tip: "安全稳定的文档型数据库",
-        showItem: false,
-        item: [
-          {
-            type: "createCollection",
-            title: "创建集合",
-          },
-          {
-            type: "selectRecord",
-            title: "增删改查记录",
-          },
-          // {
-          //   title: '聚合操作',
-          //   page: 'sumRecord',
-          // },
-        ],
-      },
-      {
-        title: "云存储",
-        tip: "自带CDN加速文件存储",
-        showItem: false,
-        item: [
-          {
-            type: "uploadFile",
-            title: "上传文件",
-          },
-        ],
-      },
-      {
-        title: "AI 接入能力",
-        tip: "云开发 AI 接入能力",
-        showItem: false,
-        item: [
-          {
-            type: "model-guide",
-            title: "大模型对话指引",
-          },
-        ],
-      },
-      {
-        title: "AI 智能开发小程序",
-        tip: "连接 AI 开发工具与 MCP 开发小程序",
-        type: "ai-assistant",
-        skipEnvCheck: true,
-        showItem: false,
-        item: [],
-      },
-    ],
-    haveCreateCollection: false,
-    title: "",
-    content: "",
+    logs: [],
+    loading: true,
+    hasMore: true,
+    page: 0,
+    pageSize: 20,
+    isEmpty: false,
+    loadError: false,
   },
-  onClickPowerInfo(e) {
-    const app = getApp();
-    const index = e.currentTarget.dataset.index;
-    const powerList = this.data.powerList;
-    const selectedItem = powerList[index];
-    
-    // 检查是否跳过环境配置检测
-    if (!selectedItem.skipEnvCheck && !app.globalData.env) {
-      wx.showModal({
-        title: "提示",
-        content: "请在 `miniprogram/app.js` 中正确配置 `env` 参数",
-      });
-      return;
-    }
-    if (selectedItem.link) {
-      wx.navigateTo({
-        url: `../web/index?url=${selectedItem.link}&title=${selectedItem.title}`,
-      });
-    } else if (selectedItem.type) {
-      wx.navigateTo({
-        url: `/pages/example/index?envId=${this.data.selectedEnv?.envId}&type=${selectedItem.type}`,
-      });
-    } else if (selectedItem.page) {
-      wx.navigateTo({
-        url: `/pages/${selectedItem.page}/index`,
-      });
-    } else if (
-      selectedItem.title === "数据库" &&
-      !this.data.haveCreateCollection
-    ) {
-      this.onClickDatabase(powerList, selectedItem);
-    } else {
-      selectedItem.showItem = !selectedItem.showItem;
-      this.setData({
-        powerList,
-      });
+
+  _needRefresh: true,
+
+  onLoad() {
+    this.loadLogs()
+  },
+
+  onShow() {
+    if (this._needRefresh) {
+      this.setData({ logs: [], page: 0, hasMore: true, loadError: false })
+      this.loadLogs()
+      this._needRefresh = false
     }
   },
 
-  jumpPage(e) {
-    const { type, page } = e.currentTarget.dataset;
-    console.log("jump page", type, page);
-    if (type) {
-      wx.navigateTo({
-        url: `/pages/example/index?envId=${this.data.selectedEnv?.envId}&type=${type}`,
-      });
-    } else {
-      wx.navigateTo({
-        url: `/pages/${page}/index?envId=${this.data.selectedEnv?.envId}`,
-      });
+  onPullDownRefresh() {
+    this.setData({ logs: [], page: 0, hasMore: true, loadError: false })
+    this.loadLogs().finally(() => wx.stopPullDownRefresh())
+  },
+
+  onReachBottom() {
+    if (this.data.hasMore && !this.data.loading) {
+      this.loadLogs()
     }
   },
 
-  onClickDatabase(powerList, selectedItem) {
-    wx.showLoading({
-      title: "",
-    });
-    wx.cloud
-      .callFunction({
-        name: "quickstartFunctions",
+  async loadLogs() {
+    if (!(await app.checkConnectivity())) {
+      this.setData({ loading: false, loadError: true })
+      return
+    }
+    this.setData({ loading: true, loadError: false })
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'coffeeLogFunctions',
         data: {
-          type: "createCollection",
-        },
+          type: 'getLogs',
+          page: this.data.page,
+          pageSize: this.data.pageSize,
+        }
       })
-      .then((resp) => {
-        if (resp.result.success) {
-          this.setData({
-            haveCreateCollection: true,
-          });
-        }
-        selectedItem.showItem = !selectedItem.showItem;
-        this.setData({
-          powerList,
-        });
-        wx.hideLoading();
+      if (!result || !result.success) {
+        throw new Error((result && result.error) || '服务器返回异常')
+      }
+      const newLogs = result.data || []
+      const logs = [...this.data.logs, ...newLogs]
+      this.setData({
+        logs,
+        loading: false,
+        hasMore: newLogs.length >= this.data.pageSize,
+        page: this.data.page + 1,
+        isEmpty: logs.length === 0,
+        loadError: false,
       })
-      .catch((e) => {
-        wx.hideLoading();
-        const { errCode, errMsg } = e;
-        if (errMsg.includes("Environment not found")) {
-          this.setData({
-            showTip: true,
-            title: "云开发环境未找到",
-            content:
-              "如果已经开通云开发，请检查环境ID与 `miniprogram/app.js` 中的 `env` 参数是否一致。",
-          });
-          return;
-        }
-        if (errMsg.includes("FunctionName parameter could not be found")) {
-          this.setData({
-            showTip: true,
-            title: "请上传云函数",
-            content:
-              "在'cloudfunctions/quickstartFunctions'目录右键，选择【上传并部署-云端安装依赖】，等待云函数上传完成后重试。",
-          });
-          return;
-        }
-      });
+    } catch (err) {
+      console.error('Failed to load logs:', err)
+      const errorMsg = app.getErrorMessage(err)
+      this.setData({
+        loading: false,
+        loadError: this.data.logs.length === 0,
+        isEmpty: false,
+      })
+      wx.showToast({ title: errorMsg, icon: 'none', duration: 2500 })
+    }
   },
-});
+
+  onRetry() {
+    this.setData({ logs: [], page: 0, hasMore: true, loadError: false })
+    this.loadLogs()
+  },
+
+  onAddLog() {
+    this._needRefresh = true
+    wx.navigateTo({ url: '/pages/add-log/index' })
+  },
+
+  onTapLog(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) {
+      wx.showToast({ title: '无法打开该记录', icon: 'none' })
+      return
+    }
+    this._needRefresh = true
+    wx.navigateTo({ url: `/pages/log-detail/index?id=${id}` })
+  },
+
+  onGoStats() {
+    wx.navigateTo({ url: '/pages/stats/index' })
+  },
+})

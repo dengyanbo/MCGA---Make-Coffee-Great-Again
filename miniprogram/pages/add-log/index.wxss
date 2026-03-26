@@ -1,0 +1,227 @@
+.page-add {
+  height: 100vh;
+}
+
+/* Roast Bean Picker */
+.roast-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0 8rpx;
+}
+
+.roast-beans {
+  display: flex;
+  gap: 24rpx;
+}
+
+.roast-bean {
+  font-size: 48rpx;
+  opacity: 0.2;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.roast-bean.active {
+  opacity: 1;
+}
+
+.roast-label {
+  font-size: 24rpx;
+  color: #8B7355;
+  margin-top: 12rpx;
+}
+
+/* Method Grid */
+.method-grid {
+  display: flex;
+  gap: 16rpx;
+}
+
+.method-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0;
+  border-radius: 16rpx;
+  border: 2rpx solid #E8DDD0;
+  background: #FEFCF9;
+}
+
+.method-item.active {
+  border-color: #6F4E37;
+  background: #F5EDE3;
+}
+
+.method-icon {
+  font-size: 40rpx;
+  margin-bottom: 8rpx;
+}
+
+.method-label {
+  font-size: 24rpx;
+  color: #6F4E37;
+}
+
+/* Param List — tappable rows */
+.param-list {
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 2rpx solid #E8DDD0;
+}
+
+.param-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  background: #FEFCF9;
+  border-bottom: 1rpx solid #F0EBE3;
+}
+
+.param-cell:last-child {
+  border-bottom: none;
+}
+
+.param-cell:active {
+  background: #F5EDE3;
+}
+
+.param-cell-label {
+  font-size: 28rpx;
+  color: #4A2C2A;
+  font-weight: 500;
+}
+
+.param-cell-right {
+  display: flex;
+  align-items: center;
+}
+
+.param-cell-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2D1810;
+  margin-right: 8rpx;
+}
+
+.param-cell-unit {
+  font-size: 24rpx;
+  color: #8B7355;
+  margin-right: 12rpx;
+}
+
+.param-cell-arrow {
+  font-size: 22rpx;
+  color: #C4A882;
+}
+
+/* Ratio Display */
+.ratio-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24rpx;
+  padding: 16rpx;
+  background: #F5EDE3;
+  border-radius: 12rpx;
+}
+
+.ratio-label {
+  font-size: 26rpx;
+  color: #6F4E37;
+  margin-right: 16rpx;
+}
+
+.ratio-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #4A2C2A;
+}
+
+/* Picker */
+.picker-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.placeholder {
+  color: #C4B5A0;
+}
+
+.picker-arrow {
+  color: #C4A882;
+  font-size: 24rpx;
+}
+
+/* Submit */
+.submit-wrap {
+  padding: 32rpx;
+}
+
+.safe-bottom {
+  height: 60rpx;
+}
+
+/* ========== Scroll Wheel Picker Bottom Sheet ========== */
+.picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.picker-sheet {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #F0EBE3;
+}
+
+.picker-cancel {
+  font-size: 30rpx;
+  color: #8B7355;
+  padding: 8rpx 16rpx;
+}
+
+.picker-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #4A2C2A;
+}
+
+.picker-confirm {
+  font-size: 30rpx;
+  color: #6F4E37;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+}
+
+.picker-body {
+  height: 400rpx;
+  width: 100%;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  font-size: 32rpx;
+  color: #2D1810;
+}

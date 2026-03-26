@@ -1,29 +1,70 @@
-<!--index.wxml-->
-<view class="container">
-  <view class="title">快速了解云开发</view>
-  <view class="top_tip">免鉴权接口调用 免部署后台 高并发</view>
-  <view class="power" wx:key="title" wx:for="{{powerList}}" wx:for-item="power">
-    <view class="power_info" data-index="{{index}}" data-type="{{ power.type }}" bindtap="onClickPowerInfo">
-      <view class="power_info_text">
-        <view class="power_info_text_title">
-          {{power.title}}
-          <view class="power_info_text_tag" wx:if="{{power.tag}}">{{power.tag}}</view>
-        </view>
-        <view class="power_info_text_tip">{{power.tip}}</view>
-      </view>
-      <image wx:if="{{!power.showItem && power.item.length}}" class="power_info_more" src="../../images/arrow.svg"></image>
-      <image wx:if="{{power.showItem && power.item.length}}" class="power_info_less" src="../../images/arrow.svg"></image>
-      <image wx:if="{{!power.item.length}}" class="power_item_icon" src="../../images/arrow.svg"></image>
+<wxs src="../../utils/filters.wxs" module="f" />
+
+<view class="page-home">
+  <!-- Header -->
+  <view class="header">
+    <view class="header-left">
+      <text class="header-title">☕ 咖啡日志</text>
+      <text class="header-subtitle">记录每一杯的美好</text>
     </view>
-    <view wx:if="{{power.showItem}}">
-      <view wx:key="title" wx:for="{{power.item}}">
-        <view class="line"></view>
-        <view class="power_item" bindtap="jumpPage" data-type="{{ item.type }}" data-page="{{item.page}}">
-          <view class="power_item_title">{{item.title}}</view>
-          <image class="power_item_icon" src="../../images/arrow.svg"></image>
+    <view class="header-right" bindtap="onGoStats">
+      <text class="stats-btn">📊</text>
+    </view>
+  </view>
+
+  <!-- Log List -->
+  <view wx:if="{{!isEmpty}}" class="log-list">
+    <view class="log-card" wx:for="{{logs}}" wx:key="_id"
+      data-id="{{item._id}}" bindtap="onTapLog">
+      <view class="log-card-top">
+        <view class="log-card-info">
+          <text class="bean-name">{{item.beanName}}</text>
+          <view class="tags">
+            <text class="tag tag-method">{{f.getBrewMethod(item.brewMethod)}}</text>
+            <text wx:if="{{item.roastLevel}}" class="tag tag-roast">{{f.getRoast(item.roastLevel)}}</text>
+          </view>
         </view>
+        <view class="log-card-score">
+          <text class="score-value">{{item.overall || '-'}}</text>
+          <text class="score-label">综合</text>
+        </view>
+      </view>
+      <view class="log-card-bottom">
+        <text class="log-params">{{item.coffeeDose}}g · {{item.waterAmount}}ml · {{f.formatTime(item.brewTime)}}</text>
+        <text class="log-date">{{f.formatDate(item.createdAt)}}</text>
       </view>
     </view>
   </view>
-  <cloud-tip-modal showTipProps="{{showTip}}" title="{{title}}" content="{{content}}"></cloud-tip-modal>
+
+  <!-- Error State -->
+  <view wx:if="{{loadError && !loading}}" class="empty-state">
+    <text class="empty-icon">⚠️</text>
+    <text class="empty-title">加载失败</text>
+    <text class="empty-desc">无法连接服务器，请检查网络后重试</text>
+    <view class="retry-btn" bindtap="onRetry">
+      <text>🔄 重新加载</text>
+    </view>
+  </view>
+
+  <!-- Empty State -->
+  <view wx:elif="{{isEmpty && !loading}}" class="empty-state">
+    <text class="empty-icon">☕</text>
+    <text class="empty-title">还没有咖啡记录</text>
+    <text class="empty-desc">点击下方按钮，开始记录你的第一杯咖啡</text>
+  </view>
+
+  <!-- Loading -->
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- No more hint -->
+  <view wx:if="{{!hasMore && logs.length > 0}}" class="loading-wrap">
+    <text class="loading-text">没有更多了</text>
+  </view>
+
+  <!-- Floating Add Button -->
+  <view class="fab" bindtap="onAddLog">
+    <text class="fab-icon">+</text>
+  </view>
 </view>

@@ -1,0 +1,63 @@
+var methods = {
+  pourover: '手冲',
+  espresso: '意式',
+  coldbrew: '冷萃'
+}
+
+var roasts = {
+  light: '浅烘',
+  medium_light: '中浅',
+  medium: '中度',
+  medium_dark: '中深',
+  dark: '深烘'
+}
+
+function getBrewMethod(method) {
+  return methods[method] || method || '--'
+}
+
+function getRoast(level) {
+  return roasts[level] || level || '--'
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  var d = getDate(dateStr)
+  var month = d.getMonth() + 1
+  var day = d.getDate()
+  return month + '月' + day + '日'
+}
+
+function formatFullDate(dateStr) {
+  if (!dateStr) return ''
+  var d = getDate(dateStr)
+  var y = d.getFullYear()
+  var month = d.getMonth() + 1
+  var day = d.getDate()
+  var h = d.getHours()
+  var m = d.getMinutes()
+  return y + '/' + month + '/' + day + ' ' + (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m)
+}
+
+function formatTime(seconds) {
+  if (!seconds && seconds !== 0) return '--'
+  var m = Math.floor(seconds / 60)
+  var s = seconds % 60
+  if (m > 0) return m + "'" + (s < 10 ? '0' + s : s) + '"'
+  return s + '"'
+}
+
+function formatRatio(dose, water) {
+  if (!dose || !water) return '--'
+  var r = water / dose
+  return '1:' + r.toFixed(1)
+}
+
+module.exports = {
+  getBrewMethod: getBrewMethod,
+  getRoast: getRoast,
+  formatDate: formatDate,
+  formatFullDate: formatFullDate,
+  formatTime: formatTime,
+  formatRatio: formatRatio
+}

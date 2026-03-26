@@ -1,0 +1,129 @@
+<wxs src="../../utils/filters.wxs" module="f" />
+
+<view wx:if="{{loading}}" class="loading-wrap" style="padding-top: 200rpx;">
+  <text class="loading-text">加载中...</text>
+</view>
+
+<!-- Error State -->
+<view wx:elif="{{loadError}}" class="empty-state" style="padding-top: 200rpx;">
+  <text class="empty-icon">⚠️</text>
+  <text class="empty-title">加载失败</text>
+  <text class="empty-desc">无法获取记录，请检查网络后重试</text>
+  <view class="retry-btn" bindtap="onRetry">
+    <text>🔄 重新加载</text>
+  </view>
+</view>
+
+<scroll-view wx:elif="{{log}}" scroll-y class="page-detail">
+  <!-- Hero Card -->
+  <view class="hero-card">
+    <view class="hero-top">
+      <view class="hero-info">
+        <text class="hero-bean">{{log.beanName}}</text>
+      </view>
+      <view class="hero-score">
+        <text class="hero-score-value">{{log.overall || '-'}}</text>
+        <text class="hero-score-max">/5</text>
+      </view>
+    </view>
+    <view class="hero-tags">
+      <text class="tag tag-method-hero">{{f.getBrewMethod(log.brewMethod)}}</text>
+      <text class="tag tag-roast-hero" wx:if="{{log.roastLevel}}">{{f.getRoast(log.roastLevel)}}</text>
+    </view>
+    <text class="hero-date">{{f.formatFullDate(log.createdAt)}}</text>
+  </view>
+
+  <!-- Brew Parameters -->
+  <view class="card">
+    <view class="section-title">
+      <text class="icon">⚙️</text>
+      <text>冲煮参数</text>
+    </view>
+    <view class="detail-grid">
+      <view class="detail-item" wx:if="{{log.grinderModel}}">
+        <text class="detail-value" style="font-size:28rpx;">{{log.grinderModel}}</text>
+        <text class="detail-unit">磨豆机</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.grindSize != null}}">
+        <text class="detail-value">{{log.grindSize}}</text>
+        <text class="detail-unit">格 · 研磨</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.coffeeDose != null}}">
+        <text class="detail-value">{{log.coffeeDose}}</text>
+        <text class="detail-unit">g · 粉量</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.waterAmount != null}}">
+        <text class="detail-value">{{log.waterAmount}}</text>
+        <text class="detail-unit">ml · 水量</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.waterTemp != null}}">
+        <text class="detail-value">{{log.waterTemp}}</text>
+        <text class="detail-unit">°C · 水温</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.brewTime != null}}">
+        <text class="detail-value">{{f.formatTime(log.brewTime)}}</text>
+        <text class="detail-unit">萃取时间</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.coffeeDose && log.waterAmount}}">
+        <text class="detail-value">{{f.formatRatio(log.coffeeDose, log.waterAmount)}}</text>
+        <text class="detail-unit">粉水比</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Environment -->
+  <view class="card" wx:if="{{log.ambientTemp != null || log.humidity != null || log.remarks}}">
+    <view class="section-title">
+      <text class="icon">🌡️</text>
+      <text>环境参数</text>
+    </view>
+    <view class="detail-grid">
+      <view class="detail-item" wx:if="{{log.ambientTemp != null}}">
+        <text class="detail-value">{{log.ambientTemp}}</text>
+        <text class="detail-unit">°C · 气温</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.humidity != null}}">
+        <text class="detail-value">{{log.humidity}}</text>
+        <text class="detail-unit">% · 湿度</text>
+      </view>
+    </view>
+    <view wx:if="{{log.remarks}}" style="margin-top: 20rpx;">
+      <text class="notes-text" style="font-size:26rpx; color:#6F4E37;">💬 {{log.remarks}}</text>
+    </view>
+  </view>
+
+  <!-- Quality Ratings -->
+  <view class="card">
+    <view class="section-title">
+      <text class="icon">⭐</text>
+      <text>品质评分</text>
+    </view>
+    <view class="quality-list">
+      <view class="quality-row" wx:for="{{qualityDims}}" wx:key="label">
+        <text class="quality-label">{{item.label}}</text>
+        <view class="quality-bar-wrap">
+          <view class="quality-bar" style="width: {{item.score / 5 * 100}}%;"></view>
+        </view>
+        <text class="quality-score">{{item.score}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Notes -->
+  <view class="card" wx:if="{{log.notes}}">
+    <view class="section-title">
+      <text class="icon">📝</text>
+      <text>品鉴笔记</text>
+    </view>
+    <text class="notes-text">{{log.notes}}</text>
+  </view>
+
+  <!-- Actions -->
+  <view class="actions">
+    <button class="btn-edit" bindtap="onEdit" disabled="{{deleting}}">✏️ 编辑</button>
+    <button class="btn-delete" bindtap="onDelete" disabled="{{deleting}}">
+      {{deleting ? '删除中...' : '🗑️ 删除'}}
+    </button>
+  </view>
+  <view class="safe-bottom"></view>
+</scroll-view>

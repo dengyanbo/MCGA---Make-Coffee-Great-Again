@@ -1,14 +1,16 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/example/index"
+    "pages/add-log/index",
+    "pages/log-detail/index",
+    "pages/stats/index"
   ],
   "window": {
-    "backgroundColor": "#F6F6F6",
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F6F6F6",
-    "navigationBarTitleText": "云开发 QuickStart",
-    "navigationBarTextStyle": "black"
+    "backgroundColor": "#FFF8F0",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#4A2C2A",
+    "navigationBarTitleText": "MCGA Coffee",
+    "navigationBarTextStyle": "white"
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",

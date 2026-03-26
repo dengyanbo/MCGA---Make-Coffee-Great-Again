@@ -1,0 +1,69 @@
+<view wx:if="{{loading}}" class="loading-wrap" style="padding-top: 200rpx;">
+  <text class="loading-text">加载中...</text>
+</view>
+
+<!-- Error State -->
+<view wx:elif="{{loadError}}" class="empty-state" style="padding-top: 200rpx;">
+  <text class="empty-icon">⚠️</text>
+  <text class="empty-title">加载失败</text>
+  <text class="empty-desc">无法获取统计数据，请检查网络后重试</text>
+  <view class="retry-btn" bindtap="onRetry">
+    <text>🔄 重新加载</text>
+  </view>
+</view>
+
+<scroll-view wx:elif="{{stats}}" scroll-y class="page-stats">
+  <!-- Summary Cards -->
+  <view class="summary-row">
+    <view class="summary-card">
+      <text class="summary-value">{{stats.totalBrews}}</text>
+      <text class="summary-label">总冲煮次数</text>
+    </view>
+    <view class="summary-card">
+      <text class="summary-value">{{stats.avgOverall}}</text>
+      <text class="summary-label">平均评分</text>
+    </view>
+  </view>
+
+  <!-- Method Distribution -->
+  <view class="card" wx:if="{{methodList.length > 0}}">
+    <view class="section-title">
+      <text class="icon">☕</text>
+      <text>冲煮方式分布</text>
+    </view>
+    <view class="method-stats">
+      <view class="method-stat-row" wx:for="{{methodList}}" wx:key="method">
+        <text class="method-stat-label">{{item.label}}</text>
+        <view class="method-stat-bar-wrap">
+          <view class="method-stat-bar" style="width: {{item.percent}}%;"></view>
+        </view>
+        <text class="method-stat-count">{{item.count}}次</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Average Scores -->
+  <view class="card" wx:if="{{scoreDims.length > 0}}">
+    <view class="section-title">
+      <text class="icon">⭐</text>
+      <text>平均品质评分</text>
+    </view>
+    <view class="score-stats">
+      <view class="score-stat-row" wx:for="{{scoreDims}}" wx:key="dim">
+        <text class="score-stat-label">{{item.label}}</text>
+        <view class="score-stat-bar-wrap">
+          <view class="score-stat-bar" style="width: {{item.percent}}%;"></view>
+        </view>
+        <text class="score-stat-value">{{item.score}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Empty Stats -->
+  <view wx:if="{{stats.totalBrews === 0}}" class="empty-state">
+    <text class="empty-icon">📊</text>
+    <text class="empty-title">暂无统计数据</text>
+    <text class="empty-desc">开始记录你的咖啡，数据会在这里汇总</text>
+  </view>
+  <view class="safe-bottom"></view>
+</scroll-view>

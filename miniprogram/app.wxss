@@ -1,27 +1,186 @@
-/**app.wxss**/
+/**app.wxss — MCGA Coffee Theme**/
+page {
+  background: #FFF8F0;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  color: #2D1810;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  min-height: 100vh;
   box-sizing: border-box;
-} 
+}
 
 button {
   background: initial;
+  line-height: inherit;
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
 }
 
-button:focus{
-  outline: 0;
+button::after { border: none; }
+
+/* Cards */
+.card {
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin: 0 32rpx 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(74, 44, 42, 0.06);
 }
 
-button::after{
-  border: none;
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #4A2C2A;
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
 }
 
+.section-title .icon {
+  margin-right: 12rpx;
+  font-size: 32rpx;
+}
 
-page {
-  background: #f6f6f6;
+/* Rating stars */
+.rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+}
+
+.rating-label {
+  font-size: 28rpx;
+  color: #6F4E37;
+  min-width: 120rpx;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 16rpx;
+}
+
+.star {
+  width: 52rpx;
+  height: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #E0D5C8;
+}
+
+.star.active {
+  color: #C4A882;
+}
+
+/* Tags */
+.tag {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  line-height: 1.6;
+}
+
+.tag-method {
+  background: #F0EBE3;
+  color: #6F4E37;
+}
+
+.tag-roast {
+  background: #E8E0D4;
+  color: #4A2C2A;
+}
+
+/* Primary button */
+.btn-primary {
+  background: linear-gradient(135deg, #6F4E37, #4A2C2A) !important;
+  color: #FFFFFF !important;
+  border-radius: 48rpx !important;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.btn-primary:active { opacity: 0.85; }
+
+/* Form elements */
+.form-group { margin-bottom: 28rpx; }
+
+.form-label {
+  font-size: 26rpx;
+  color: #8B7355;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  border: 2rpx solid #E8DDD0;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+  font-size: 28rpx;
+  color: #2D1810;
+  background: #FEFCF9;
+  box-sizing: border-box;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  border: 2rpx solid #E8DDD0;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+  color: #2D1810;
+  background: #FEFCF9;
+  box-sizing: border-box;
+}
+
+/* Loading & Empty */
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.loading-text {
+  font-size: 24rpx;
+  color: #C4A882;
+}
+
+.empty-state {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 60rpx;
+}
+
+.empty-icon { font-size: 120rpx; margin-bottom: 32rpx; }
+.empty-title { font-size: 34rpx; font-weight: 600; color: #4A2C2A; margin-bottom: 16rpx; }
+.empty-desc { font-size: 26rpx; color: #8B7355; text-align: center; }
+
+/* Retry Button */
+.retry-btn {
+  margin-top: 40rpx;
+  padding: 16rpx 48rpx;
+  background: #F5EDE3;
+  border-radius: 40rpx;
+  color: #4A2C2A;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.retry-btn:active {
+  opacity: 0.7;
 }

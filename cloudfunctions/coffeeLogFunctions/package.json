@@ -1,0 +1,9 @@
+{
+  "name": "coffeeLogFunctions",
+  "version": "1.0.0",
+  "description": "MCGA Coffee Log CRUD Functions",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.4.0"
+  }
+}

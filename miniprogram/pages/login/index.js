@@ -10,20 +10,19 @@ Page({
   },
 
   onLoad(options) {
-    if (options.from === 'home' && app.globalData.isLoggedIn) {
+    // Auto-redirect on app cold launch
+    if (app._autoRedirectHome) {
+      app._autoRedirectHome = false
+      wx.reLaunch({ url: '/pages/index/index' })
+      return
+    }
+    // Already logged in — show account management (user clicked built-in home button)
+    if (app.globalData.isLoggedIn) {
       this.setData({
         showLoggedInState: true,
         nickname: app.globalData.nickname || ''
       })
       return
-    }
-    if (app.globalData.isLoggedIn) {
-      wx.reLaunch({ url: '/pages/index/index' })
-      return
-    }
-    if (app._autoRedirectHome) {
-      app._autoRedirectHome = false
-      wx.reLaunch({ url: '/pages/index/index' })
     }
   },
 
@@ -50,7 +49,7 @@ Page({
       })
     } catch (_) { /* ignore */ }
 
-    wx.navigateBack()
+    wx.reLaunch({ url: '/pages/index/index' })
   },
 
   onLogout() {
@@ -80,17 +79,30 @@ Page({
         throw new Error((result && result.error) || '登录失败')
       }
 
+      const inputNickname = this.data.nickname.trim()
+      const nickname = inputNickname || result.data.nickname || ''
+
       const loginState = {
         loggedIn: true,
         loginTime: Date.now(),
         openid: result.data.openid,
-        nickname: result.data.nickname || '',
+        nickname,
       }
       wx.setStorageSync(LOGIN_KEY, loginState)
 
       app.globalData.isLoggedIn = true
       app.globalData.userOpenid = result.data.openid
-      app.globalData.nickname = result.data.nickname || ''
+      app.globalData.nickname = nickname
+
+      // Save nickname to cloud if user entered one
+      if (inputNickname) {
+        try {
+          wx.cloud.callFunction({
+            name: 'coffeeLogFunctions',
+            data: { type: 'updateNickname', nickname: inputNickname }
+          })
+        } catch (_) { /* ignore */ }
+      }
 
       wx.reLaunch({ url: '/pages/index/index' })
     } catch (err) {

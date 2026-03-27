@@ -27,6 +27,11 @@
       <text class="login-subtitle">Make Coffee Great Again</text>
       <text class="login-desc">记录每一杯的美好，需要使用微信账号登录</text>
 
+      <view class="nickname-section">
+        <text class="nickname-label">昵称（可选）</text>
+        <input class="nickname-input" placeholder="给自己取个名字吧" value="{{nickname}}" bindinput="onNicknameInput" maxlength="12" />
+      </view>
+
       <button class="login-btn" bindtap="onLogin" disabled="{{logging}}">
         <text class="login-btn-icon">💬</text>
         <text>{{logging ? '登录中...' : '使用微信账号登录'}}</text>

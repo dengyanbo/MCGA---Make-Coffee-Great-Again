@@ -119,8 +119,4 @@ Page({
   onGoStats() {
     wx.navigateTo({ url: '/pages/stats/index' })
   },
-
-  onGoHome() {
-    wx.navigateTo({ url: '/pages/login/index?from=home' })
-  },
 })

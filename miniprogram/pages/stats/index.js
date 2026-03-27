@@ -43,26 +43,50 @@ Page({
       }
 
       // Build per-method collapsible list
-      const methodStatsList = Object.entries(stats.methodStats || {})
-        .map(([method, data]) => {
-          const scoreDims = Object.entries(data.avgScores || {})
-            .map(([dim, score]) => ({
-              dim,
-              label: dimLabels[dim] || dim,
-              score,
-              percent: score / 5 * 100,
-            }))
-          return {
+      let methodStatsList = []
+      if (stats.methodStats && Object.keys(stats.methodStats).length > 0) {
+        // New cloud function with per-method data
+        methodStatsList = Object.entries(stats.methodStats)
+          .map(([method, data]) => {
+            const scoreDims = Object.entries(data.avgScores || {})
+              .map(([dim, score]) => ({
+                dim,
+                label: dimLabels[dim] || dim,
+                score,
+                percent: score / 5 * 100,
+              }))
+            return {
+              method,
+              label: this.data.methodLabels[method] || method,
+              count: data.count,
+              avgOverall: data.avgOverall,
+              scoreDims,
+              logs: data.logs || [],
+              expanded: false,
+            }
+          })
+          .sort((a, b) => b.count - a.count)
+      } else if (stats.methodCounts && Object.keys(stats.methodCounts).length > 0) {
+        // Fallback: old cloud function without methodStats
+        const overallScoreDims = Object.entries(stats.avgScores || {})
+          .map(([dim, score]) => ({
+            dim,
+            label: dimLabels[dim] || dim,
+            score,
+            percent: score / 5 * 100,
+          }))
+        methodStatsList = Object.entries(stats.methodCounts)
+          .map(([method, count]) => ({
             method,
             label: this.data.methodLabels[method] || method,
-            count: data.count,
-            avgOverall: data.avgOverall,
-            scoreDims,
-            logs: data.logs || [],
+            count,
+            avgOverall: stats.avgOverall,
+            scoreDims: overallScoreDims,
+            logs: [],
             expanded: false,
-          }
-        })
-        .sort((a, b) => b.count - a.count)
+          }))
+          .sort((a, b) => b.count - a.count)
+      }
 
       this.setData({ stats, methodStatsList, loading: false, loadError: false })
     } catch (err) {

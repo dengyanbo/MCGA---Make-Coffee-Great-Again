@@ -6,7 +6,7 @@ App({
       return
     }
     try {
-      wx.cloud.init({ traceUser: true })
+      wx.cloud.init({ env: 'mcga-prod-9gxweirnce32f3b0', traceUser: true })
       this.globalData.cloudReady = true
     } catch (err) {
       console.error('云开发初始化失败:', err)

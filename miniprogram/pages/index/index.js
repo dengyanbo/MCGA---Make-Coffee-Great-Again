@@ -12,34 +12,42 @@ Page({
     isInitialLoad: true,
   },
 
-  _needRefresh: true,
+  _needRefresh: false,
   _offset: 0,
+  _loading: false,
 
   onLoad() {
     if (!app.ensureLogin()) return
-    this.loadLogs()
+    this._needRefresh = false
+    this._resetAndLoad()
   },
 
   onShow() {
     if (this._needRefresh) {
-      this._offset = 0
-      this.setData({ logs: [], hasMore: true, loadError: false, isInitialLoad: true })
-      this.loadLogs()
       this._needRefresh = false
+      this._resetAndLoad()
     }
+  },
+
+  _resetAndLoad() {
+    this._offset = 0
+    this.setData({ logs: [], hasMore: true, loadError: false, isInitialLoad: true })
+    this.loadLogs()
   },
 
   onPullDownRefresh() {
-    this._offset = 0
-    this.setData({ logs: [], hasMore: true, loadError: false, isInitialLoad: true })
-    this.loadLogs().finally(() => wx.stopPullDownRefresh())
+    this._resetAndLoad()
+    // stopPullDownRefresh will be called when loadLogs completes
   },
 
   async loadLogs() {
+    if (this._loading) return
     if (!(await app.checkConnectivity())) {
       this.setData({ loading: false, loadError: true })
+      wx.stopPullDownRefresh()
       return
     }
+    this._loading = true
     this.setData({ loading: true, loadError: false })
     const pageSize = this.data.isInitialLoad ? INITIAL_SIZE : LOAD_MORE_SIZE
     try {
@@ -74,6 +82,9 @@ Page({
         isEmpty: false,
       })
       wx.showToast({ title: errorMsg, icon: 'none', duration: 2500 })
+    } finally {
+      this._loading = false
+      wx.stopPullDownRefresh()
     }
   },
 
@@ -84,8 +95,7 @@ Page({
   },
 
   onRetry() {
-    this.setData({ logs: [], page: 0, hasMore: true, loadError: false })
-    this.loadLogs()
+    this._resetAndLoad()
   },
 
   onAddLog() {

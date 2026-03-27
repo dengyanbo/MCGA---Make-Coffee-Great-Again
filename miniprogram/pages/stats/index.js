@@ -10,8 +10,7 @@ Page({
       espresso: '意式',
       coldbrew: '冷萃',
     },
-    methodList: [],
-    scoreDims: [],
+    methodStatsList: [],
   },
 
   onLoad() {
@@ -37,34 +36,52 @@ Page({
       if (!stats) {
         throw new Error('服务器返回数据为空')
       }
-      const methodList = Object.entries(stats.methodCounts || {})
-        .map(([method, count]) => ({
-          method,
-          label: this.data.methodLabels[method] || method,
-          count,
-          percent: stats.totalBrews ? Math.round(count / stats.totalBrews * 100) : 0,
-        }))
-        .sort((a, b) => b.count - a.count)
 
       const dimLabels = {
         aroma: '香气', acidity: '酸质', sweetness: '甜度',
         body: '醇厚度', aftertaste: '余韵', overall: '综合'
       }
-      const scoreDims = Object.entries(stats.avgScores || {})
-        .map(([dim, score]) => ({
-          dim,
-          label: dimLabels[dim] || dim,
-          score,
-          percent: score / 5 * 100,
-        }))
 
-      this.setData({ stats, methodList, scoreDims, loading: false, loadError: false })
+      // Build per-method collapsible list
+      const methodStatsList = Object.entries(stats.methodStats || {})
+        .map(([method, data]) => {
+          const scoreDims = Object.entries(data.avgScores || {})
+            .map(([dim, score]) => ({
+              dim,
+              label: dimLabels[dim] || dim,
+              score,
+              percent: score / 5 * 100,
+            }))
+          return {
+            method,
+            label: this.data.methodLabels[method] || method,
+            count: data.count,
+            avgOverall: data.avgOverall,
+            scoreDims,
+            logs: data.logs || [],
+            expanded: false,
+          }
+        })
+        .sort((a, b) => b.count - a.count)
+
+      this.setData({ stats, methodStatsList, loading: false, loadError: false })
     } catch (err) {
       console.error('Failed to load stats:', err)
       const errorMsg = app.getErrorMessage(err)
       this.setData({ loading: false, loadError: true })
       wx.showToast({ title: errorMsg, icon: 'none', duration: 2500 })
     }
+  },
+
+  onToggleMethod(e) {
+    const method = e.currentTarget.dataset.method
+    const methodStatsList = this.data.methodStatsList.map(item => {
+      if (item.method === method) {
+        return { ...item, expanded: !item.expanded }
+      }
+      return item
+    })
+    this.setData({ methodStatsList })
   },
 
   onRetry() {

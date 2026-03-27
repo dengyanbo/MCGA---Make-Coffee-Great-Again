@@ -24,7 +24,13 @@
   display: block;
 }
 
-.stats-btn {
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.header-icon-btn {
   font-size: 48rpx;
   padding: 12rpx;
 }

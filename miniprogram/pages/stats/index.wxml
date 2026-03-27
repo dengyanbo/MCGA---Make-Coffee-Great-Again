@@ -1,3 +1,5 @@
+<wxs src="../../utils/filters.wxs" module="f" />
+
 <view wx:if="{{loading}}" class="loading-wrap" style="padding-top: 200rpx;">
   <text class="loading-text">加载中...</text>
 </view>
@@ -25,36 +27,44 @@
     </view>
   </view>
 
-  <!-- Method Distribution -->
-  <view class="card" wx:if="{{methodList.length > 0}}">
-    <view class="section-title">
-      <text class="icon">☕</text>
-      <text>冲煮方式分布</text>
-    </view>
-    <view class="method-stats">
-      <view class="method-stat-row" wx:for="{{methodList}}" wx:key="method">
-        <text class="method-stat-label">{{item.label}}</text>
-        <view class="method-stat-bar-wrap">
-          <view class="method-stat-bar" style="width: {{item.percent}}%;"></view>
+  <!-- Per-method collapsible sections -->
+  <view wx:if="{{methodStatsList.length > 0}}">
+    <view class="card method-group" wx:for="{{methodStatsList}}" wx:key="method">
+      <!-- Method header (always visible, tap to toggle) -->
+      <view class="method-header" bindtap="onToggleMethod" data-method="{{item.method}}">
+        <view class="method-header-left">
+          <text class="method-name">{{item.label}}</text>
+          <text class="method-summary">{{item.count}}次 · 均分 {{item.avgOverall}}</text>
         </view>
-        <text class="method-stat-count">{{item.count}}次</text>
+        <text class="method-arrow {{item.expanded ? 'expanded' : ''}}">▶</text>
       </view>
-    </view>
-  </view>
 
-  <!-- Average Scores -->
-  <view class="card" wx:if="{{scoreDims.length > 0}}">
-    <view class="section-title">
-      <text class="icon">⭐</text>
-      <text>平均品质评分</text>
-    </view>
-    <view class="score-stats">
-      <view class="score-stat-row" wx:for="{{scoreDims}}" wx:key="dim">
-        <text class="score-stat-label">{{item.label}}</text>
-        <view class="score-stat-bar-wrap">
-          <view class="score-stat-bar" style="width: {{item.percent}}%;"></view>
+      <!-- Expanded content -->
+      <view wx:if="{{item.expanded}}" class="method-detail">
+        <!-- Per-method average scores -->
+        <view class="method-scores">
+          <view class="score-stat-row" wx:for="{{item.scoreDims}}" wx:for-item="score" wx:key="dim">
+            <text class="score-stat-label">{{score.label}}</text>
+            <view class="score-stat-bar-wrap">
+              <view class="score-stat-bar" style="width: {{score.percent}}%;"></view>
+            </view>
+            <text class="score-stat-value">{{score.score}}</text>
+          </view>
         </view>
-        <text class="score-stat-value">{{item.score}}</text>
+
+        <!-- Per-method log entries -->
+        <view class="method-logs">
+          <view class="method-log-item" wx:for="{{item.logs}}" wx:for-item="log" wx:key="_id">
+            <view class="method-log-top">
+              <text class="method-log-bean">{{log.beanName}}</text>
+              <text class="method-log-score">{{log.overall || '-'}}</text>
+            </view>
+            <view class="method-log-bottom">
+              <text class="method-log-params">{{log.coffeeDose}}g · {{log.waterAmount}}ml · {{f.formatTime(log.brewTime)}}</text>
+              <text class="method-log-date">{{f.formatDate(log.createdAt)}}</text>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>

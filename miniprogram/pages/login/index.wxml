@@ -1,6 +1,27 @@
 <view class="page-login">
   <view class="login-bg">
-    <view class="login-card">
+    <!-- Logged-in state (from home button) -->
+    <view wx:if="{{showLoggedInState}}" class="login-card">
+      <text class="login-icon">☕</text>
+      <text class="login-title">MCGA Coffee</text>
+      <text class="login-subtitle-status">✅ 已登录</text>
+
+      <view class="nickname-section">
+        <text class="nickname-label">昵称</text>
+        <input class="nickname-input" placeholder="输入你的昵称" value="{{nickname}}" bindinput="onNicknameInput" maxlength="12" />
+      </view>
+
+      <button class="continue-btn" bindtap="onContinue">
+        <text>保持登录</text>
+      </button>
+
+      <button class="logout-btn" bindtap="onLogout">
+        <text>注销登录</text>
+      </button>
+    </view>
+
+    <!-- Login state -->
+    <view wx:else class="login-card">
       <text class="login-icon">☕</text>
       <text class="login-title">MCGA Coffee</text>
       <text class="login-subtitle">Make Coffee Great Again</text>

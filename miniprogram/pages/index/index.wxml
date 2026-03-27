@@ -4,11 +4,12 @@
   <!-- Header -->
   <view class="header">
     <view class="header-left">
-      <text class="header-title">☕ 咖啡日志</text>
+      <text class="header-title">☕ {{nickname ? nickname + '的咖啡日志' : '咖啡日志'}}</text>
       <text class="header-subtitle">记录每一杯的美好</text>
     </view>
-    <view class="header-right" bindtap="onGoStats">
-      <text class="stats-btn">📊</text>
+    <view class="header-right">
+      <text class="header-icon-btn" bindtap="onGoHome">🏠</text>
+      <text class="header-icon-btn" bindtap="onGoStats">📊</text>
     </view>
   </view>
 

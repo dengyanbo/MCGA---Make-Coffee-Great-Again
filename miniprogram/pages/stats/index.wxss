@@ -73,6 +73,114 @@
   text-align: right;
 }
 
+/* Collapsible Method Groups */
+.method-group {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.method-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+}
+
+.method-header:active {
+  background: #FAF5EF;
+}
+
+.method-header-left {
+  flex: 1;
+}
+
+.method-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #4A2C2A;
+  display: block;
+}
+
+.method-summary {
+  font-size: 24rpx;
+  color: #8B7355;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.method-arrow {
+  font-size: 24rpx;
+  color: #C4A882;
+  transition: transform 0.3s ease;
+}
+
+.method-arrow.expanded {
+  transform: rotate(90deg);
+}
+
+.method-detail {
+  border-top: 1rpx solid #F0EBE3;
+  padding: 24rpx 32rpx;
+}
+
+.method-scores {
+  margin-bottom: 24rpx;
+}
+
+.method-logs {
+  border-top: 1rpx solid #F0EBE3;
+  padding-top: 20rpx;
+}
+
+.method-log-item {
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #F8F4EE;
+}
+
+.method-log-item:last-child {
+  border-bottom: none;
+}
+
+.method-log-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.method-log-bean {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #2D1810;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.method-log-score {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #4A2C2A;
+  margin-left: 16rpx;
+}
+
+.method-log-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.method-log-params {
+  font-size: 22rpx;
+  color: #8B7355;
+}
+
+.method-log-date {
+  font-size: 22rpx;
+  color: #C4A882;
+}
+
 /* Score Stats */
 .score-stats {
   display: flex;

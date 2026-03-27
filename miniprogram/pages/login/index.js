@@ -5,18 +5,56 @@ const LOGIN_KEY = 'loginState'
 Page({
   data: {
     logging: false,
+    showLoggedInState: false,
+    nickname: '',
   },
 
-  onLoad() {
+  onLoad(options) {
+    if (options.from === 'home' && app.globalData.isLoggedIn) {
+      this.setData({
+        showLoggedInState: true,
+        nickname: app.globalData.nickname || ''
+      })
+      return
+    }
     if (app.globalData.isLoggedIn) {
       wx.reLaunch({ url: '/pages/index/index' })
       return
     }
-    // Handle auto-redirect scheduled in app.js
     if (app._autoRedirectHome) {
       app._autoRedirectHome = false
       wx.reLaunch({ url: '/pages/index/index' })
     }
+  },
+
+  onNicknameInput(e) {
+    this.setData({ nickname: e.detail.value })
+  },
+
+  async onContinue() {
+    const nickname = this.data.nickname.trim()
+    app.globalData.nickname = nickname
+    try {
+      const state = wx.getStorageSync(LOGIN_KEY)
+      if (state) {
+        state.nickname = nickname
+        wx.setStorageSync(LOGIN_KEY, state)
+      }
+    } catch (_) { /* ignore */ }
+
+    // Save to cloud (fire and forget)
+    try {
+      wx.cloud.callFunction({
+        name: 'coffeeLogFunctions',
+        data: { type: 'updateNickname', nickname }
+      })
+    } catch (_) { /* ignore */ }
+
+    wx.navigateBack()
+  },
+
+  onLogout() {
+    app.logout()
   },
 
   async onLogin() {
@@ -46,11 +84,13 @@ Page({
         loggedIn: true,
         loginTime: Date.now(),
         openid: result.data.openid,
+        nickname: result.data.nickname || '',
       }
       wx.setStorageSync(LOGIN_KEY, loginState)
 
       app.globalData.isLoggedIn = true
       app.globalData.userOpenid = result.data.openid
+      app.globalData.nickname = result.data.nickname || ''
 
       wx.reLaunch({ url: '/pages/index/index' })
     } catch (err) {

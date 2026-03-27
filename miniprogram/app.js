@@ -28,6 +28,7 @@ App({
         if (elapsed < LOGIN_EXPIRY_MS) {
           this.globalData.isLoggedIn = true
           this.globalData.userOpenid = state.openid || ''
+          this.globalData.nickname = state.nickname || ''
           // Already authenticated — jump to home if on login page
           const pages = getCurrentPages()
           if (!pages.length) {
@@ -43,6 +44,7 @@ App({
 
     this.globalData.isLoggedIn = false
     this.globalData.userOpenid = ''
+    this.globalData.nickname = ''
   },
 
   /** Called by pages to enforce login. Returns true if logged in. */
@@ -57,6 +59,7 @@ App({
     try { wx.removeStorageSync(LOGIN_KEY) } catch (_) { /* ignore */ }
     this.globalData.isLoggedIn = false
     this.globalData.userOpenid = ''
+    this.globalData.nickname = ''
     wx.reLaunch({ url: '/pages/login/index' })
   },
 
@@ -72,6 +75,7 @@ App({
     cloudReady: false,
     isLoggedIn: false,
     userOpenid: '',
+    nickname: '',
   },
 
   /** Check cloud + network, show toast on failure. Returns true if OK. */

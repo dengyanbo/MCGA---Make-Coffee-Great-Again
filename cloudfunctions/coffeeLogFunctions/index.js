@@ -8,8 +8,9 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
 
   switch (type) {
-    case 'login':     return login(OPENID)
-    case 'addLog':    return addLog(event, OPENID)
+    case 'login':         return login(OPENID)
+    case 'updateNickname': return updateNickname(event, OPENID)
+    case 'addLog':        return addLog(event, OPENID)
     case 'getLogs':   return getLogs(event, OPENID)
     case 'getLog':    return getLog(event)
     case 'updateLog': return updateLog(event)
@@ -26,10 +27,24 @@ async function login(openid) {
     const now = new Date()
     if (data.length > 0) {
       await users.doc(data[0]._id).update({ data: { lastLoginAt: now } })
-      return { success: true, data: { openid, lastLoginAt: now, createdAt: data[0].createdAt } }
+      return { success: true, data: { openid, lastLoginAt: now, createdAt: data[0].createdAt, nickname: data[0].nickname || '' } }
     }
-    await users.add({ data: { _openid: openid, createdAt: now, lastLoginAt: now } })
-    return { success: true, data: { openid, lastLoginAt: now, createdAt: now } }
+    await users.add({ data: { _openid: openid, createdAt: now, lastLoginAt: now, nickname: '' } })
+    return { success: true, data: { openid, lastLoginAt: now, createdAt: now, nickname: '' } }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
+async function updateNickname(event, openid) {
+  const { nickname } = event
+  try {
+    const users = db.collection('users')
+    const { data } = await users.where({ _openid: openid }).limit(1).get()
+    if (data.length > 0) {
+      await users.doc(data[0]._id).update({ data: { nickname: nickname || '' } })
+    }
+    return { success: true }
   } catch (err) {
     return { success: false, error: err.message }
   }
@@ -119,6 +134,7 @@ async function getStats(openid) {
           methodCounts: {},
           avgScores: { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0, overall: 0 },
           recentLogs: [],
+          methodStats: {},
         }
       }
     }
@@ -139,7 +155,25 @@ async function getStats(openid) {
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 10)
 
-    return { success: true, data: { totalBrews, avgOverall, methodCounts, avgScores, recentLogs } }
+    // Per-method stats
+    const methodStats = {}
+    Object.keys(methodCounts).forEach(method => {
+      const methodLogs = allLogs.filter(l => l.brewMethod === method)
+      const count = methodLogs.length
+      const mAvgScores = {}
+      dims.forEach(d => {
+        mAvgScores[d] = count > 0 ? +(methodLogs.reduce((s, l) => s + (l[d] || 0), 0) / count).toFixed(1) : 0
+      })
+      const mAvgOverall = count > 0 ? (methodLogs.reduce((s, l) => s + (l.overall || 0), 0) / count).toFixed(1) : '0'
+      methodStats[method] = {
+        count,
+        avgOverall: mAvgOverall,
+        avgScores: mAvgScores,
+        logs: methodLogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+      }
+    })
+
+    return { success: true, data: { totalBrews, avgOverall, methodCounts, avgScores, recentLogs, methodStats } }
   } catch (err) {
     return { success: false, error: err.message }
   }

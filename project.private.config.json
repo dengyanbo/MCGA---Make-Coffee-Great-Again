@@ -1,4 +1,6 @@
 {
+  "cloudfunctionRoot": "cloudfunctions/",
+  "cloudbaseRoot": "cloudfunctions/",
   "setting": {
     "compileHotReLoad": true,
     "urlCheck": false,

@@ -1,0 +1,17 @@
+<view class="page-login">
+  <view class="login-bg">
+    <view class="login-card">
+      <text class="login-icon">☕</text>
+      <text class="login-title">MCGA Coffee</text>
+      <text class="login-subtitle">Make Coffee Great Again</text>
+      <text class="login-desc">记录每一杯的美好，需要使用微信账号登录</text>
+
+      <button class="login-btn" bindtap="onLogin" disabled="{{logging}}">
+        <text class="login-btn-icon">💬</text>
+        <text>{{logging ? '登录中...' : '使用微信账号登录'}}</text>
+      </button>
+
+      <text class="login-hint">登录后数据将关联到您的微信账号</text>
+    </view>
+  </view>
+</view>

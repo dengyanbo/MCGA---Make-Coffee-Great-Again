@@ -8,6 +8,7 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
 
   switch (type) {
+    case 'login':     return login(OPENID)
     case 'addLog':    return addLog(event, OPENID)
     case 'getLogs':   return getLogs(event, OPENID)
     case 'getLog':    return getLog(event)
@@ -15,6 +16,22 @@ exports.main = async (event, context) => {
     case 'deleteLog': return deleteLog(event)
     case 'getStats':  return getStats(OPENID)
     default:          return { success: false, error: 'Unknown type' }
+  }
+}
+
+async function login(openid) {
+  try {
+    const users = db.collection('users')
+    const { data } = await users.where({ _openid: openid }).limit(1).get()
+    const now = new Date()
+    if (data.length > 0) {
+      await users.doc(data[0]._id).update({ data: { lastLoginAt: now } })
+      return { success: true, data: { openid, lastLoginAt: now, createdAt: data[0].createdAt } }
+    }
+    await users.add({ data: { _openid: openid, createdAt: now, lastLoginAt: now } })
+    return { success: true, data: { openid, lastLoginAt: now, createdAt: now } }
+  } catch (err) {
+    return { success: false, error: err.message }
   }
 }
 
@@ -32,12 +49,13 @@ async function addLog(event, openid) {
 }
 
 async function getLogs(event, openid) {
-  const { page = 0, pageSize = 20 } = event
+  const { skip = 0, page = 0, pageSize = 20 } = event
+  const offset = skip || (page * pageSize)
   try {
     const result = await db.collection('coffee_logs')
       .where({ _openid: openid })
       .orderBy('createdAt', 'desc')
-      .skip(page * pageSize)
+      .skip(offset)
       .limit(pageSize)
       .get()
     return { success: true, data: result.data }

@@ -10,6 +10,7 @@ Page({
   },
 
   onLoad(options) {
+    if (!app.ensureLogin()) return
     if (options.id) {
       this._logId = options.id
       this.loadLog(options.id)

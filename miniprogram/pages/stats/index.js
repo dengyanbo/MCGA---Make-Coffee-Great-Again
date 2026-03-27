@@ -15,6 +15,7 @@ Page({
   },
 
   onLoad() {
+    if (!app.ensureLogin()) return
     this.loadStats()
   },
 

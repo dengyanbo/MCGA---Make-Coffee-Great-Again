@@ -58,6 +58,13 @@
     <text class="loading-text">加载中...</text>
   </view>
 
+  <!-- Show More Button -->
+  <view wx:if="{{hasMore && !loading && logs.length > 0}}" class="show-more-wrap">
+    <view class="show-more-btn" bindtap="onShowMore">
+      <text>显示更多</text>
+    </view>
+  </view>
+
   <!-- No more hint -->
   <view wx:if="{{!hasMore && logs.length > 0}}" class="loading-wrap">
     <text class="loading-text">没有更多了</text>

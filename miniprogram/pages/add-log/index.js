@@ -81,6 +81,7 @@ Page({
   },
 
   onLoad(options) {
+    if (!app.ensureLogin()) return
     // Pre-generate ranges
     this._ranges = {}
     PARAM_FIELDS.forEach(f => {

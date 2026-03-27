@@ -1,39 +1,38 @@
 const app = getApp()
+const INITIAL_SIZE = 5
+const LOAD_MORE_SIZE = 10
 
 Page({
   data: {
     logs: [],
     loading: true,
     hasMore: true,
-    page: 0,
-    pageSize: 20,
     isEmpty: false,
     loadError: false,
+    isInitialLoad: true,
   },
 
   _needRefresh: true,
+  _offset: 0,
 
   onLoad() {
+    if (!app.ensureLogin()) return
     this.loadLogs()
   },
 
   onShow() {
     if (this._needRefresh) {
-      this.setData({ logs: [], page: 0, hasMore: true, loadError: false })
+      this._offset = 0
+      this.setData({ logs: [], hasMore: true, loadError: false, isInitialLoad: true })
       this.loadLogs()
       this._needRefresh = false
     }
   },
 
   onPullDownRefresh() {
-    this.setData({ logs: [], page: 0, hasMore: true, loadError: false })
+    this._offset = 0
+    this.setData({ logs: [], hasMore: true, loadError: false, isInitialLoad: true })
     this.loadLogs().finally(() => wx.stopPullDownRefresh())
-  },
-
-  onReachBottom() {
-    if (this.data.hasMore && !this.data.loading) {
-      this.loadLogs()
-    }
   },
 
   async loadLogs() {
@@ -42,13 +41,14 @@ Page({
       return
     }
     this.setData({ loading: true, loadError: false })
+    const pageSize = this.data.isInitialLoad ? INITIAL_SIZE : LOAD_MORE_SIZE
     try {
       const { result } = await wx.cloud.callFunction({
         name: 'coffeeLogFunctions',
         data: {
           type: 'getLogs',
-          page: this.data.page,
-          pageSize: this.data.pageSize,
+          skip: this._offset,
+          pageSize,
         }
       })
       if (!result || !result.success) {
@@ -56,13 +56,14 @@ Page({
       }
       const newLogs = result.data || []
       const logs = [...this.data.logs, ...newLogs]
+      this._offset += newLogs.length
       this.setData({
         logs,
         loading: false,
-        hasMore: newLogs.length >= this.data.pageSize,
-        page: this.data.page + 1,
+        hasMore: newLogs.length >= pageSize,
         isEmpty: logs.length === 0,
         loadError: false,
+        isInitialLoad: false,
       })
     } catch (err) {
       console.error('Failed to load logs:', err)
@@ -73,6 +74,12 @@ Page({
         isEmpty: false,
       })
       wx.showToast({ title: errorMsg, icon: 'none', duration: 2500 })
+    }
+  },
+
+  onShowMore() {
+    if (this.data.hasMore && !this.data.loading) {
+      this.loadLogs()
     }
   },
 

@@ -1,3 +1,6 @@
+const LOGIN_KEY = 'loginState'
+const LOGIN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
+
 App({
   onLaunch() {
     if (!wx.cloud) {
@@ -12,6 +15,49 @@ App({
       console.error('云开发初始化失败:', err)
       this.globalData.cloudReady = false
     }
+
+    this._checkLoginState()
+  },
+
+  /** Check cached login state; redirect if valid, stay on login page if not */
+  _checkLoginState() {
+    try {
+      const state = wx.getStorageSync(LOGIN_KEY)
+      if (state && state.loggedIn && state.loginTime) {
+        const elapsed = Date.now() - state.loginTime
+        if (elapsed < LOGIN_EXPIRY_MS) {
+          this.globalData.isLoggedIn = true
+          this.globalData.userOpenid = state.openid || ''
+          // Already authenticated — jump to home if on login page
+          const pages = getCurrentPages()
+          if (!pages.length) {
+            // onLaunch fires before page onLoad; schedule redirect
+            this._autoRedirectHome = true
+          }
+          return
+        }
+        // Expired — clear
+        wx.removeStorageSync(LOGIN_KEY)
+      }
+    } catch (_) { /* storage error, treat as not logged in */ }
+
+    this.globalData.isLoggedIn = false
+    this.globalData.userOpenid = ''
+  },
+
+  /** Called by pages to enforce login. Returns true if logged in. */
+  ensureLogin() {
+    if (this.globalData.isLoggedIn) return true
+    wx.reLaunch({ url: '/pages/login/index' })
+    return false
+  },
+
+  /** Clear login state and redirect to login page */
+  logout() {
+    try { wx.removeStorageSync(LOGIN_KEY) } catch (_) { /* ignore */ }
+    this.globalData.isLoggedIn = false
+    this.globalData.userOpenid = ''
+    wx.reLaunch({ url: '/pages/login/index' })
   },
 
   onError(err) {
@@ -24,6 +70,8 @@ App({
 
   globalData: {
     cloudReady: false,
+    isLoggedIn: false,
+    userOpenid: '',
   },
 
   /** Check cloud + network, show toast on failure. Returns true if OK. */

@@ -114,6 +114,26 @@
   color: #C4A882;
 }
 
+/* Show More Button */
+.show-more-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 20rpx 32rpx 40rpx;
+}
+
+.show-more-btn {
+  padding: 20rpx 64rpx;
+  background: #F5EDE3;
+  border-radius: 40rpx;
+  color: #4A2C2A;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.show-more-btn:active {
+  opacity: 0.7;
+}
+
 /* Floating Add Button */
 .fab {
   position: fixed;

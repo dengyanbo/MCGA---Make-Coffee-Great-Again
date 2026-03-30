@@ -14,7 +14,7 @@
   </view>
 </view>
 
-<scroll-view wx:elif="{{log}}" scroll-y class="page-detail">
+<view wx:elif="{{log}}" class="page-detail">
   <!-- Hero Card -->
   <view class="hero-card">
     <view class="hero-top">
@@ -98,15 +98,12 @@
       <text class="icon">⭐</text>
       <text>品质评分</text>
     </view>
-    <view class="quality-list">
-      <view class="quality-row" wx:for="{{qualityDims}}" wx:key="label">
-        <text class="quality-label">{{item.label}}</text>
-        <view class="quality-bar-wrap">
-          <view class="quality-bar" style="width: {{item.score / 5 * 100}}%;"></view>
-        </view>
-        <text class="quality-score">{{item.score}}</text>
-      </view>
+    <view class="overall-row">
+      <text class="overall-label">综合评分</text>
+      <text class="overall-score">{{overallScore}}</text>
+      <text class="overall-max">/5</text>
     </view>
+    <radar-chart dims="{{qualityDims}}" size="{{220}}" />
   </view>
 
   <!-- Notes -->
@@ -126,4 +123,4 @@
     </button>
   </view>
   <view class="safe-bottom"></view>
-</scroll-view>
+</view>

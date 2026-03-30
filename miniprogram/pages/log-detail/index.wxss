@@ -1,5 +1,5 @@
 .page-detail {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 /* Hero Card — clean iOS card */
@@ -102,45 +102,30 @@
   display: block;
 }
 
-/* Quality Bars */
-.quality-list {
+/* Overall Score Row */
+.overall-row {
   display: flex;
-  flex-direction: column;
-  gap: 20rpx;
+  align-items: baseline;
+  margin-bottom: 20rpx;
 }
 
-.quality-row {
-  display: flex;
-  align-items: center;
-}
-
-.quality-label {
-  font-size: 26rpx;
-  color: #3A3A3C;
-  min-width: 100rpx;
-}
-
-.quality-bar-wrap {
-  flex: 1;
-  height: 16rpx;
-  background: #E5E5EA;
-  border-radius: 8rpx;
-  margin: 0 20rpx;
-  overflow: hidden;
-}
-
-.quality-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #AEAEB2, #C7C7CC);
-  border-radius: 8rpx;
-}
-
-.quality-score {
+.overall-label {
   font-size: 28rpx;
-  font-weight: 600;
+  color: #3A3A3C;
+  margin-right: auto;
+}
+
+.overall-score {
+  font-size: 48rpx;
+  font-weight: 700;
   color: #1C1C1E;
-  min-width: 40rpx;
-  text-align: right;
+  line-height: 1;
+}
+
+.overall-max {
+  font-size: 24rpx;
+  color: #AEAEB2;
+  margin-left: 4rpx;
 }
 
 /* Notes */

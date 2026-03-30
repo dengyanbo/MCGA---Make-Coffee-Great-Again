@@ -45,6 +45,7 @@ Page({
         aroma: '香气', acidity: '酸质', sweetness: '甜度',
         body: '醇厚度', aftertaste: '余韵', overall: '综合'
       }
+      const radarDimKeys = ['aroma', 'acidity', 'sweetness', 'body', 'aftertaste']
 
       // Build per-method collapsible list
       let methodStatsList = []
@@ -52,19 +53,19 @@ Page({
         // New cloud function with per-method data
         methodStatsList = Object.entries(stats.methodStats)
           .map(([method, data]) => {
-            const scoreDims = Object.entries(data.avgScores || {})
-              .map(([dim, score]) => ({
+            const radarDims = radarDimKeys
+              .filter(dim => (data.avgScores || {})[dim] != null)
+              .map(dim => ({
                 dim,
-                label: dimLabels[dim] || dim,
-                score,
-                percent: score / 5 * 100,
+                label: dimLabels[dim],
+                score: data.avgScores[dim],
               }))
             return {
               method,
               label: this.data.methodLabels[method] || method,
               count: data.count,
               avgOverall: data.avgOverall,
-              scoreDims,
+              radarDims,
               logs: data.logs || [],
               expanded: false,
             }
@@ -72,12 +73,12 @@ Page({
           .sort((a, b) => b.count - a.count)
       } else if (stats.methodCounts && Object.keys(stats.methodCounts).length > 0) {
         // Fallback: old cloud function without methodStats
-        const overallScoreDims = Object.entries(stats.avgScores || {})
-          .map(([dim, score]) => ({
+        const radarDims = radarDimKeys
+          .filter(dim => (stats.avgScores || {})[dim] != null)
+          .map(dim => ({
             dim,
-            label: dimLabels[dim] || dim,
-            score,
-            percent: score / 5 * 100,
+            label: dimLabels[dim],
+            score: stats.avgScores[dim],
           }))
         methodStatsList = Object.entries(stats.methodCounts)
           .map(([method, count]) => ({
@@ -85,7 +86,7 @@ Page({
             label: this.data.methodLabels[method] || method,
             count,
             avgOverall: stats.avgOverall,
-            scoreDims: overallScoreDims,
+            radarDims,
             logs: [],
             expanded: false,
           }))

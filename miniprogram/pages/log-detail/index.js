@@ -55,9 +55,9 @@ Page({
         { label: '甜度', score: log.sweetness || 0 },
         { label: '醇厚度', score: log.body || 0 },
         { label: '余韵', score: log.aftertaste || 0 },
-        { label: '综合', score: log.overall || 0 },
       ]
-      this.setData({ log, qualityDims, loading: false, loadError: false })
+      const overallScore = log.overall || 0
+      this.setData({ log, qualityDims, overallScore, loading: false, loadError: false })
     } catch (err) {
       console.error('Load log failed:', err)
       const errorMsg = app.getErrorMessage(err)

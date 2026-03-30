@@ -1,5 +1,5 @@
 .page-stats {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 /* Summary Row */
@@ -71,6 +71,38 @@
   color: #8E8E93;
   min-width: 60rpx;
   text-align: right;
+}
+
+/* Method Overall Score */
+.method-overall-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 16rpx;
+}
+
+.method-overall-label {
+  font-size: 28rpx;
+  color: #3A3A3C;
+  margin-right: auto;
+}
+
+.method-overall-score {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #1C1C1E;
+  line-height: 1;
+}
+
+.method-overall-max {
+  font-size: 22rpx;
+  color: #AEAEB2;
+  margin-left: 4rpx;
+}
+
+.method-radar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8rpx;
 }
 
 /* Collapsible Method Groups */
@@ -179,48 +211,6 @@
 .method-log-date {
   font-size: 22rpx;
   color: #AEAEB2;
-}
-
-/* Score Stats */
-.score-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.score-stat-row {
-  display: flex;
-  align-items: center;
-}
-
-.score-stat-label {
-  font-size: 26rpx;
-  color: #3A3A3C;
-  min-width: 100rpx;
-}
-
-.score-stat-bar-wrap {
-  flex: 1;
-  height: 16rpx;
-  background: #E5E5EA;
-  border-radius: 8rpx;
-  margin: 0 16rpx;
-  overflow: hidden;
-}
-
-.score-stat-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #C7C7CC, #D1D1D6);
-  border-radius: 8rpx;
-  min-width: 4rpx;
-}
-
-.score-stat-value {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1C1C1E;
-  min-width: 60rpx;
-  text-align: right;
 }
 
 .safe-bottom {

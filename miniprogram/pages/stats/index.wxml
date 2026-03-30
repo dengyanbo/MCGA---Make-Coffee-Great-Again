@@ -14,7 +14,7 @@
   </view>
 </view>
 
-<scroll-view wx:elif="{{stats}}" scroll-y class="page-stats">
+<view wx:elif="{{stats}}" class="page-stats">
   <!-- Summary Cards -->
   <view class="summary-row">
     <view class="summary-card">
@@ -41,15 +41,15 @@
 
       <!-- Expanded content -->
       <view wx:if="{{item.expanded}}" class="method-detail">
-        <!-- Per-method average scores -->
-        <view class="method-scores">
-          <view class="score-stat-row" wx:for="{{item.scoreDims}}" wx:for-item="score" wx:key="dim">
-            <text class="score-stat-label">{{score.label}}</text>
-            <view class="score-stat-bar-wrap">
-              <view class="score-stat-bar" style="width: {{score.percent}}%;"></view>
-            </view>
-            <text class="score-stat-value">{{score.score}}</text>
-          </view>
+        <!-- Per-method overall score -->
+        <view class="method-overall-row">
+          <text class="method-overall-label">综合均分</text>
+          <text class="method-overall-score">{{item.avgOverall}}</text>
+          <text class="method-overall-max">/5</text>
+        </view>
+        <!-- Per-method radar chart -->
+        <view class="method-radar-wrap" wx:if="{{item.radarDims.length >= 5}}">
+          <radar-chart dims="{{item.radarDims}}" size="{{200}}" />
         </view>
 
         <!-- Per-method log entries -->
@@ -76,4 +76,4 @@
     <text class="empty-desc">开始记录你的咖啡，数据会在这里汇总</text>
   </view>
   <view class="safe-bottom"></view>
-</scroll-view>
+</view>

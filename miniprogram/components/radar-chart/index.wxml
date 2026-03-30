@@ -1,3 +1,0 @@
-<view class="radar-wrap" style="width:{{sizePx}}px; height:{{sizePx}}px;">
-  <canvas id="radarCanvas" type="2d" class="radar-canvas" style="width:{{sizePx}}px; height:{{sizePx}}px;"></canvas>
-</view>

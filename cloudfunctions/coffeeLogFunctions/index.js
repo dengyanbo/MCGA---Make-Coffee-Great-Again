@@ -8,15 +8,20 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
 
   switch (type) {
-    case 'login':         return login(OPENID)
-    case 'updateNickname': return updateNickname(event, OPENID)
-    case 'addLog':        return addLog(event, OPENID)
-    case 'getLogs':   return getLogs(event, OPENID)
-    case 'getLog':    return getLog(event)
-    case 'updateLog': return updateLog(event)
-    case 'deleteLog': return deleteLog(event)
-    case 'getStats':  return getStats(OPENID)
-    default:          return { success: false, error: 'Unknown type' }
+    case 'login':              return login(OPENID)
+    case 'updateNickname':     return updateNickname(event, OPENID)
+    case 'addLog':             return addLog(event, OPENID)
+    case 'getLogs':            return getLogs(event, OPENID)
+    case 'getLog':             return getLog(event)
+    case 'updateLog':          return updateLog(event)
+    case 'deleteLog':          return deleteLog(event)
+    case 'getStats':           return getStats(OPENID)
+    case 'saveEquipment':      return saveEquipment(event, OPENID)
+    case 'getEquipment':       return getEquipment(OPENID)
+    case 'completeOnboarding': return completeOnboarding(OPENID)
+    case 'getBrewRecipe':      return getBrewRecipe(event)
+    case 'getFilteredLogs':    return getFilteredLogs(event, OPENID)
+    default:                   return { success: false, error: 'Unknown type' }
   }
 }
 
@@ -27,10 +32,19 @@ async function login(openid) {
     const now = new Date()
     if (data.length > 0) {
       await users.doc(data[0]._id).update({ data: { lastLoginAt: now } })
-      return { success: true, data: { openid, lastLoginAt: now, createdAt: data[0].createdAt, nickname: data[0].nickname || '' } }
+      return {
+        success: true,
+        data: {
+          openid,
+          lastLoginAt: now,
+          createdAt: data[0].createdAt,
+          nickname: data[0].nickname || '',
+          onboardingDone: data[0].onboardingDone || false,
+        }
+      }
     }
-    await users.add({ data: { _openid: openid, createdAt: now, lastLoginAt: now, nickname: '' } })
-    return { success: true, data: { openid, lastLoginAt: now, createdAt: now, nickname: '' } }
+    await users.add({ data: { _openid: openid, createdAt: now, lastLoginAt: now, nickname: '', onboardingDone: false } })
+    return { success: true, data: { openid, lastLoginAt: now, createdAt: now, nickname: '', onboardingDone: false } }
   } catch (err) {
     return { success: false, error: err.message }
   }
@@ -126,55 +140,135 @@ async function getStats(openid) {
       page++
     }
 
-    if (allLogs.length === 0) {
+    const totalBrews = allLogs.length
+    if (totalBrews === 0) {
       return {
         success: true,
         data: {
-          totalBrews: 0, avgOverall: 0,
+          totalBrews: 0,
+          goodCount: 0,
+          badCount: 0,
+          goodRate: '0%',
+          topBadReasons: [],
           methodCounts: {},
-          avgScores: { aroma: 0, acidity: 0, sweetness: 0, body: 0, aftertaste: 0, overall: 0 },
-          recentLogs: [],
-          methodStats: {},
         }
       }
     }
 
-    const totalBrews = allLogs.length
-    const avgOverall = (allLogs.reduce((s, l) => s + (l.overall || 0), 0) / totalBrews).toFixed(1)
+    const goodCount = allLogs.filter(l => l.taste === 'good').length
+    const badCount = allLogs.filter(l => l.taste === 'bad').length
+    const goodRate = Math.round((goodCount / totalBrews) * 100) + '%'
+
+    // Tally bad reasons across all logs
+    const reasonCounts = {}
+    allLogs.forEach(l => {
+      if (Array.isArray(l.badReasons)) {
+        l.badReasons.forEach(r => { reasonCounts[r] = (reasonCounts[r] || 0) + 1 })
+      }
+    })
+    const topBadReasons = Object.entries(reasonCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([reason]) => reason)
 
     const methodCounts = {}
-    allLogs.forEach(l => { methodCounts[l.brewMethod] = (methodCounts[l.brewMethod] || 0) + 1 })
-
-    const dims = ['aroma', 'acidity', 'sweetness', 'body', 'aftertaste', 'overall']
-    const avgScores = {}
-    dims.forEach(d => {
-      avgScores[d] = +(allLogs.reduce((s, l) => s + (l[d] || 0), 0) / totalBrews).toFixed(1)
-    })
-
-    const recentLogs = allLogs
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 10)
-
-    // Per-method stats
-    const methodStats = {}
-    Object.keys(methodCounts).forEach(method => {
-      const methodLogs = allLogs.filter(l => l.brewMethod === method)
-      const count = methodLogs.length
-      const mAvgScores = {}
-      dims.forEach(d => {
-        mAvgScores[d] = count > 0 ? +(methodLogs.reduce((s, l) => s + (l[d] || 0), 0) / count).toFixed(1) : 0
-      })
-      const mAvgOverall = count > 0 ? (methodLogs.reduce((s, l) => s + (l.overall || 0), 0) / count).toFixed(1) : '0'
-      methodStats[method] = {
-        count,
-        avgOverall: mAvgOverall,
-        avgScores: mAvgScores,
-        logs: methodLogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    allLogs.forEach(l => {
+      if (l.brewMethod) {
+        methodCounts[l.brewMethod] = (methodCounts[l.brewMethod] || 0) + 1
       }
     })
 
-    return { success: true, data: { totalBrews, avgOverall, methodCounts, avgScores, recentLogs, methodStats } }
+    return {
+      success: true,
+      data: { totalBrews, goodCount, badCount, goodRate, topBadReasons, methodCounts }
+    }
   } catch (err) {
     return { success: false, error: err.message }
+  }
+}
+
+async function saveEquipment(event, openid) {
+  const { grinders, filterCups } = event
+  try {
+    const users = db.collection('users')
+    const { data } = await users.where({ _openid: openid }).limit(1).get()
+    if (data.length > 0) {
+      await users.doc(data[0]._id).update({
+        data: {
+          grinders: grinders || [],
+          filterCups: filterCups || [],
+        }
+      })
+    }
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
+async function getEquipment(openid) {
+  try {
+    const { data } = await db.collection('users').where({ _openid: openid }).limit(1).get()
+    if (data.length > 0) {
+      return {
+        success: true,
+        data: {
+          grinders: data[0].grinders || [],
+          filterCups: data[0].filterCups || [],
+        }
+      }
+    }
+    return { success: true, data: { grinders: [], filterCups: [] } }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
+async function completeOnboarding(openid) {
+  try {
+    const users = db.collection('users')
+    const { data } = await users.where({ _openid: openid }).limit(1).get()
+    if (data.length > 0) {
+      await users.doc(data[0]._id).update({ data: { onboardingDone: true } })
+    }
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
+async function getBrewRecipe(event) {
+  const { technique } = event
+  try {
+    const { data } = await db.collection('brew_recipes')
+      .where({ technique })
+      .get()
+    return { success: true, data }
+  } catch (err) {
+    return { success: false, error: err.message }
+  }
+}
+
+async function getFilteredLogs(event, openid) {
+  const { filters = {}, skip = 0, pageSize = 20 } = event
+  try {
+    const query = { _openid: openid }
+    if (filters.beanName) {
+      query.beanName = db.RegExp({ regexp: filters.beanName, options: 'i' })
+    }
+    if (filters.grinderModel) query.grinderModel = filters.grinderModel
+    if (filters.grindSize) query.grindSize = filters.grindSize
+    if (filters.waterTemp) query.waterTemp = filters.waterTemp
+    if (filters.taste) query.taste = filters.taste
+
+    const result = await db.collection('coffee_logs')
+      .where(query)
+      .orderBy('createdAt', 'desc')
+      .skip(skip)
+      .limit(pageSize)
+      .get()
+    return { success: true, data: result.data }
+  } catch (err) {
+    return { success: false, data: [], error: err.message }
   }
 }

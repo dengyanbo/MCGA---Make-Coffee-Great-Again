@@ -1,6 +1,3 @@
 {
-  "navigationBarTitleText": "咖啡详情",
-  "usingComponents": {
-    "radar-chart": "/components/radar-chart/index"
-  }
+  "navigationBarTitleText": "咖啡详情"
 }

@@ -2,7 +2,6 @@
   padding-bottom: 120rpx;
 }
 
-/* Header — iOS large title style */
 .header {
   display: flex;
   align-items: center;
@@ -34,6 +33,85 @@
   padding: 12rpx;
 }
 
+/* Stats Summary Card */
+.stats-summary-card {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px);
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin: 0 32rpx 24rpx;
+  border: 0.5rpx solid rgba(255,255,255,0.5);
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.04);
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stats-value {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #1C1C1E;
+  line-height: 1;
+}
+
+.stats-label {
+  font-size: 22rpx;
+  color: #8E8E93;
+  margin-top: 8rpx;
+}
+
+.stats-bad-reasons {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 0.5rpx solid rgba(0,0,0,0.06);
+}
+
+.stats-bad-label {
+  font-size: 22rpx;
+  color: #8E8E93;
+}
+
+/* Filter Tabs */
+.filter-tabs-scroll {
+  white-space: nowrap;
+  margin: 0 32rpx 16rpx;
+}
+
+.filter-tabs {
+  display: inline-flex;
+  gap: 12rpx;
+}
+
+.filter-tab {
+  display: inline-flex;
+  padding: 12rpx 28rpx;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #8E8E93;
+  font-weight: 500;
+}
+
+.filter-tab.active {
+  background: #1C1C1E;
+  color: #FFFFFF;
+}
+
+.filter-tab:active {
+  opacity: 0.7;
+}
+
 /* Log Cards */
 .log-list {
   padding: 0 0 40rpx;
@@ -44,7 +122,7 @@
   border-radius: 20rpx;
   padding: 28rpx 32rpx;
   margin: 0 32rpx 20rpx;
-  box-shadow: none;
+  box-shadow: 0 1rpx 6rpx rgba(0,0,0,0.04);
 }
 
 .log-card:active {
@@ -79,25 +157,22 @@
   flex-wrap: wrap;
 }
 
-.log-card-score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.log-card-taste {
   margin-left: 24rpx;
-  min-width: 80rpx;
+  display: flex;
+  align-items: center;
 }
 
-.score-value {
+.taste-tag {
   font-size: 48rpx;
-  font-weight: 700;
-  color: #1C1C1E;
   line-height: 1;
 }
 
-.score-label {
-  font-size: 20rpx;
+.score-value-old {
+  font-size: 44rpx;
+  font-weight: 700;
   color: #8E8E93;
-  margin-top: 4rpx;
+  line-height: 1;
 }
 
 .log-card-bottom {
@@ -119,7 +194,7 @@
   color: #AEAEB2;
 }
 
-/* Show More Button */
+/* Show More */
 .show-more-wrap {
   display: flex;
   justify-content: center;
@@ -139,7 +214,7 @@
   opacity: 0.7;
 }
 
-/* Guest Login Button */
+/* Guest Login */
 .guest-login-btn {
   margin-top: 32rpx;
   padding: 20rpx 64rpx;
@@ -154,15 +229,13 @@
   opacity: 0.85;
 }
 
-/* Floating Add Button */
+/* FABs */
 .fab {
   position: fixed;
-  right: 40rpx;
   bottom: 60rpx;
   width: 112rpx;
   height: 112rpx;
   border-radius: 56rpx;
-  background: #1C1C1E;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -174,10 +247,30 @@
   opacity: 0.85;
 }
 
+.fab-right {
+  right: 40rpx;
+  background: #1C1C1E;
+}
+
+.fab-left {
+  left: 40rpx;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px);
+  border: 0.5rpx solid rgba(0,0,0,0.08);
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.1);
+}
+
 .fab-icon {
   color: #FFFFFF;
   font-size: 56rpx;
   font-weight: 300;
   line-height: 1;
   margin-top: -4rpx;
+}
+
+.fab-text {
+  color: #1C1C1E;
+  font-size: 26rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
 }

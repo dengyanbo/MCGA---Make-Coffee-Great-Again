@@ -167,3 +167,35 @@
 .safe-bottom {
   height: 60rpx;
 }
+
+/* Taste Display */
+.taste-display {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.taste-emoji {
+  font-size: 56rpx;
+}
+
+.taste-text {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1C1C1E;
+}
+
+.bad-reasons-display {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.bad-reason-tag {
+  padding: 8rpx 20rpx;
+  background: rgba(255, 59, 48, 0.1);
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  color: #FF3B30;
+}

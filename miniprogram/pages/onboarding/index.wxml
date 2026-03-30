@@ -1,0 +1,48 @@
+<view class="onboarding-page">
+  <view class="onboarding-overlay {{animateIn ? 'visible' : ''}}">
+    <view class="onboarding-card {{animateIn ? 'slide-up' : ''}}">
+      <!-- Step indicator -->
+      <view class="step-indicator">
+        <view class="step-dot {{step >= 1 ? 'active' : ''}}"></view>
+        <view class="step-dot {{step >= 2 ? 'active' : ''}}"></view>
+      </view>
+
+      <!-- Title -->
+      <text class="onboarding-title">{{step === 1 ? '你的磨豆机' : '你的滤杯'}}</text>
+      <text class="onboarding-desc">{{step === 1 ? '添加你常用的磨豆机型号' : '添加你常用的滤杯型号'}}</text>
+
+      <!-- Input -->
+      <view class="onboarding-input-row">
+        <input class="onboarding-input" placeholder="{{step === 1 ? '如：Comandante C40' : '如：Hario V60'}}" value="{{inputValue}}" bindinput="onInputChange" bindconfirm="onAddItem" />
+        <view class="onboarding-add-btn" bindtap="onAddItem">
+          <text>+</text>
+        </view>
+      </view>
+
+      <!-- Item list -->
+      <view class="onboarding-items" wx:if="{{currentItems.length > 0}}">
+        <view class="onboarding-item" wx:for="{{currentItems}}" wx:key="*this">
+          <text class="onboarding-item-text">{{item}}</text>
+          <view class="onboarding-item-remove" data-index="{{index}}" bindtap="onRemoveItem">
+            <text>×</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Empty hint -->
+      <view wx:else class="onboarding-empty">
+        <text class="onboarding-empty-text">{{step === 1 ? '还没有添加磨豆机' : '还没有添加滤杯'}}</text>
+      </view>
+
+      <!-- Buttons -->
+      <view class="onboarding-actions">
+        <view class="onboarding-skip" bindtap="onSkip">
+          <text>跳过</text>
+        </view>
+        <view class="onboarding-next {{saving ? 'disabled' : ''}}" bindtap="onNext">
+          <text>{{saving ? '保存中...' : (step === 2 ? '完成' : '下一步')}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

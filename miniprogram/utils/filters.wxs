@@ -1,6 +1,5 @@
 var methods = {
   pourover: '手冲',
-  espresso: '意式',
   coldbrew: '冷萃'
 }
 
@@ -12,12 +11,43 @@ var roasts = {
   dark: '深烘'
 }
 
+var tastes = {
+  good: '好喝',
+  bad: '难喝'
+}
+
+var badReasons = {
+  too_bitter: '太苦',
+  too_sour: '太酸'
+}
+
+var techniques = {
+  yidaoliu: '一刀流',
+  sanduanshi: '三段式'
+}
+
 function getBrewMethod(method) {
   return methods[method] || method || '--'
 }
 
 function getRoast(level) {
   return roasts[level] || level || '--'
+}
+
+function getTaste(taste) {
+  return tastes[taste] || taste || '--'
+}
+
+function getBadReason(reason) {
+  if (!reason) return '--'
+  if (reason.indexOf('other:') === 0) {
+    return reason.substring(6) || '其他'
+  }
+  return badReasons[reason] || reason
+}
+
+function getBrewTechnique(technique) {
+  return techniques[technique] || technique || '--'
 }
 
 function formatDate(dateStr) {
@@ -56,6 +86,9 @@ function formatRatio(dose, water) {
 module.exports = {
   getBrewMethod: getBrewMethod,
   getRoast: getRoast,
+  getTaste: getTaste,
+  getBadReason: getBadReason,
+  getBrewTechnique: getBrewTechnique,
   formatDate: formatDate,
   formatFullDate: formatFullDate,
   formatTime: formatTime,

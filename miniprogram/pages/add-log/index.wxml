@@ -30,7 +30,7 @@
     <view class="glass-segmented" id="brewSegmented"
       bindtouchstart="onBrewTouchStart" bindtouchmove="onBrewTouchMove">
       <view class="glass-indicator" wx:if="{{brewMethodIndex >= 0}}"
-        style="transform: translateX({{brewMethodIndex * 100}}%)"></view>
+        style="width: 50%; transform: translateX({{brewMethodIndex * 100}}%)"></view>
       <view class="glass-segment {{brewMethod === item.value ? 'active' : ''}}"
         wx:for="{{brewMethods}}" wx:key="value"
         data-value="{{item.value}}" bindtap="onSelectMethod">
@@ -46,6 +46,16 @@
     <view class="form-group">
       <text class="form-label">磨豆机型号</text>
       <input class="form-input" placeholder="如：Comandante C40" value="{{grinderModel}}" bindinput="onInputGrinderModel" />
+    </view>
+    <view class="form-group">
+      <text class="form-label">滤杯型号</text>
+      <view wx:if="{{filterCups.length > 0}}" class="filter-cup-row">
+        <view class="filter-cup-select" bindtap="onSelectFilterCup">
+          <text>{{filterCup || '选择滤杯'}}</text>
+          <text class="brew-param-arrow">›</text>
+        </view>
+      </view>
+      <input wx:else class="form-input" placeholder="如：Hario V60" value="{{filterCup}}" bindinput="onInputFilterCup" />
     </view>
 
     <view class="param-grid">
@@ -115,23 +125,32 @@
     </view>
   </view>
 
-  <!-- Quality Rating -->
+  <!-- Taste Rating -->
   <view class="card">
-    <view class="section-title"><text class="icon">⭐</text><text>品质评分</text></view>
-    <view class="rating-row" wx:for="{{ratings}}" wx:key="dim" wx:for-index="rIdx" wx:for-item="rating">
-      <text class="rating-label">{{rating.label}}</text>
-      <view class="glass-rating">
-        <view class="glass-rating-track" id="ratingTrack{{rIdx}}"
-          data-index="{{rIdx}}"
-          bindtouchstart="onRatingTouchStart" bindtouchmove="onRatingTouchMove" bindtouchend="onRatingTouchEnd">
-          <view class="glass-rating-option"
-            wx:for="{{[1,2,3,4,5]}}" wx:for-item="s" wx:key="*this">
-            <text class="glass-rating-num {{rating.score === s ? 'visible' : ''}}">{{s}}</text>
-          </view>
-          <view class="glass-rating-slider" wx:if="{{rating.score > 0}}"
-            style="width: {{rating.score * 20}}%;"></view>
+    <view class="section-title"><text class="icon">☕</text><text>味道评价</text></view>
+    <view class="taste-buttons">
+      <view class="taste-btn {{taste === 'good' ? 'taste-btn-good-active' : ''}}" data-taste="good" bindtap="onSelectTaste">
+        <text class="taste-btn-emoji">👍</text>
+        <text class="taste-btn-label">好喝</text>
+      </view>
+      <view class="taste-btn {{taste === 'bad' ? 'taste-btn-bad-active' : ''}}" data-taste="bad" bindtap="onSelectTaste">
+        <text class="taste-btn-emoji">👎</text>
+        <text class="taste-btn-label">难喝</text>
+      </view>
+    </view>
+
+    <!-- Bad reasons (shown when taste is bad) -->
+    <view wx:if="{{taste === 'bad'}}" class="bad-reasons-section">
+      <text class="form-label" style="margin-top: 24rpx;">哪里不好？</text>
+      <view class="bad-reason-chips">
+        <view class="bad-reason-chip {{badReasons.indexOf('too_bitter') >= 0 ? 'selected' : ''}}" data-reason="too_bitter" bindtap="onToggleBadReason">
+          <text>太苦</text>
+        </view>
+        <view class="bad-reason-chip {{badReasons.indexOf('too_sour') >= 0 ? 'selected' : ''}}" data-reason="too_sour" bindtap="onToggleBadReason">
+          <text>太酸</text>
         </view>
       </view>
+      <input class="form-input" placeholder="其他原因..." value="{{customBadReason}}" bindinput="onCustomBadReasonInput" style="margin-top: 16rpx;" />
     </view>
   </view>
 

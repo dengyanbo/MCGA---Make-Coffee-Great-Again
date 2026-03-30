@@ -32,6 +32,7 @@ Page({
       const state = wx.getStorageSync(LOGIN_KEY)
       if (state) {
         state.nickname = nickname
+        state.onboardingDone = true
         wx.setStorageSync(LOGIN_KEY, state)
       }
     } catch (_) { /* ignore */ }
@@ -109,7 +110,22 @@ Page({
         } catch (_) { /* ignore */ }
       }
 
-      this._navigateAfterLogin()
+      // Check onboarding
+      if (!result.data.onboardingDone) {
+        app.globalData.onboardingDone = false
+        wx.reLaunch({ url: '/pages/onboarding/index' })
+      } else {
+        app.globalData.onboardingDone = true
+        // Store onboarding state
+        try {
+          const storedState = wx.getStorageSync(LOGIN_KEY)
+          if (storedState) {
+            storedState.onboardingDone = true
+            wx.setStorageSync(LOGIN_KEY, storedState)
+          }
+        } catch (_) {}
+        this._navigateAfterLogin()
+      }
     } catch (err) {
       console.error('Login failed:', err)
       wx.showToast({

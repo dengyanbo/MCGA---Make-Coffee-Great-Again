@@ -4,7 +4,6 @@
   <text class="loading-text">加载中...</text>
 </view>
 
-<!-- Error State -->
 <view wx:elif="{{loadError}}" class="empty-state" style="padding-top: 200rpx;">
   <text class="empty-icon">⚠️</text>
   <text class="empty-title">加载失败</text>
@@ -19,57 +18,52 @@
   <view class="summary-row">
     <view class="summary-card">
       <text class="summary-value">{{stats.totalBrews}}</text>
-      <text class="summary-label">总冲煮次数</text>
+      <text class="summary-label">总冲煮</text>
     </view>
     <view class="summary-card">
-      <text class="summary-value">{{stats.avgOverall}}</text>
-      <text class="summary-label">平均评分</text>
+      <text class="summary-value">{{stats.goodRate || '0%'}}</text>
+      <text class="summary-label">好喝率</text>
     </view>
   </view>
 
-  <!-- Per-method collapsible sections -->
-  <view wx:if="{{methodStatsList.length > 0}}">
-    <view class="card method-group" wx:for="{{methodStatsList}}" wx:key="method">
-      <!-- Method header (always visible, tap to toggle) -->
-      <view class="method-header" bindtap="onToggleMethod" data-method="{{item.method}}">
-        <view class="method-header-left">
-          <text class="method-name">{{item.label}}</text>
-          <text class="method-summary">{{item.count}}次 · 均分 {{item.avgOverall}}</text>
-        </view>
-        <text class="method-arrow {{item.expanded ? 'expanded' : ''}}">▶</text>
+  <!-- Good / Bad counts -->
+  <view class="card" wx:if="{{stats.totalBrews > 0}}">
+    <view class="section-title"><text class="icon">☕</text><text>味道统计</text></view>
+    <view class="taste-stats-row">
+      <view class="taste-stat-item">
+        <text class="taste-stat-emoji">👍</text>
+        <text class="taste-stat-count">{{stats.goodCount || 0}}</text>
+        <text class="taste-stat-label">好喝</text>
       </view>
+      <view class="taste-stat-item">
+        <text class="taste-stat-emoji">👎</text>
+        <text class="taste-stat-count">{{stats.badCount || 0}}</text>
+        <text class="taste-stat-label">难喝</text>
+      </view>
+    </view>
 
-      <!-- Expanded content -->
-      <view wx:if="{{item.expanded}}" class="method-detail">
-        <!-- Per-method overall score -->
-        <view class="method-overall-row">
-          <text class="method-overall-label">综合均分</text>
-          <text class="method-overall-score">{{item.avgOverall}}</text>
-          <text class="method-overall-max">/5</text>
-        </view>
-        <!-- Per-method radar chart -->
-        <view class="method-radar-wrap" wx:if="{{item.radarDims.length >= 5}}">
-          <radar-chart dims="{{item.radarDims}}" size="{{200}}" />
-        </view>
-
-        <!-- Per-method log entries -->
-        <view class="method-logs">
-          <view class="method-log-item" wx:for="{{item.logs}}" wx:for-item="log" wx:key="_id">
-            <view class="method-log-top">
-              <text class="method-log-bean">{{log.beanName}}</text>
-              <text class="method-log-score">{{log.overall || '-'}}</text>
-            </view>
-            <view class="method-log-bottom">
-              <text class="method-log-params">{{log.coffeeDose}}g · {{log.waterAmount}}ml · {{f.formatTime(log.brewTime)}}</text>
-              <text class="method-log-date">{{f.formatDate(log.createdAt)}}</text>
-            </view>
-          </view>
-        </view>
+    <!-- Top bad reasons -->
+    <view wx:if="{{stats.topBadReasons && stats.topBadReasons.length > 0}}" class="top-bad-reasons">
+      <text class="top-bad-title">常见问题</text>
+      <view class="top-bad-tags">
+        <text class="tag tag-reason" wx:for="{{stats.topBadReasons}}" wx:key="*this">{{f.getBadReason(item)}}</text>
       </view>
     </view>
   </view>
 
-  <!-- Empty Stats -->
+  <!-- Method Stats -->
+  <view class="card" wx:if="{{methodStatsList.length > 0}}">
+    <view class="section-title"><text class="icon">⚙️</text><text>冲煮方式</text></view>
+    <view class="method-stat-row" wx:for="{{methodStatsList}}" wx:key="method">
+      <text class="method-stat-label">{{item.label}}</text>
+      <view class="method-stat-bar-wrap">
+        <view class="method-stat-bar" style="width: {{stats.totalBrews > 0 ? (item.count / stats.totalBrews * 100) : 0}}%"></view>
+      </view>
+      <text class="method-stat-count">{{item.count}}次</text>
+    </view>
+  </view>
+
+  <!-- Empty -->
   <view wx:if="{{stats.totalBrews === 0}}" class="empty-state">
     <text class="empty-icon">📊</text>
     <text class="empty-title">暂无统计数据</text>

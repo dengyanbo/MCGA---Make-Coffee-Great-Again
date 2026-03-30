@@ -6,7 +6,6 @@ Page({
     loading: true,
     loadError: false,
     deleting: false,
-    qualityDims: [],
   },
 
   onLoad(options) {
@@ -49,15 +48,7 @@ Page({
       if (!log) {
         throw new Error('记录不存在或已被删除')
       }
-      const qualityDims = [
-        { label: '香气', score: log.aroma || 0 },
-        { label: '酸质', score: log.acidity || 0 },
-        { label: '甜度', score: log.sweetness || 0 },
-        { label: '醇厚度', score: log.body || 0 },
-        { label: '余韵', score: log.aftertaste || 0 },
-      ]
-      const overallScore = log.overall || 0
-      this.setData({ log, qualityDims, overallScore, loading: false, loadError: false })
+      this.setData({ log, loading: false, loadError: false })
     } catch (err) {
       console.error('Load log failed:', err)
       const errorMsg = app.getErrorMessage(err)
@@ -130,8 +121,9 @@ Page({
         path: '/pages/index/index',
       }
     }
+    const tasteText = log.taste === 'good' ? '👍' : log.taste === 'bad' ? '👎' : ''
     return {
-      title: `${log.beanName || '咖啡记录'} - ${log.overall || '?'}/5 ☕`,
+      title: `${log.beanName || '咖啡记录'} ${tasteText} ☕`,
       path: `/pages/log-detail/index?id=${this._logId}`,
     }
   },

@@ -4,7 +4,9 @@
     "pages/login/index",
     "pages/add-log/index",
     "pages/log-detail/index",
-    "pages/stats/index"
+    "pages/stats/index",
+    "pages/onboarding/index",
+    "pages/brew/index"
   ],
   "window": {
     "backgroundColor": "#F2F2F7",

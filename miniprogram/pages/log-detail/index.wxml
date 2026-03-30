@@ -68,6 +68,14 @@
         <text class="detail-value">{{f.formatRatio(log.coffeeDose, log.waterAmount)}}</text>
         <text class="detail-unit">粉水比</text>
       </view>
+      <view class="detail-item" wx:if="{{log.brewTechnique}}">
+        <text class="detail-value" style="font-size:28rpx;">{{f.getBrewTechnique(log.brewTechnique)}}</text>
+        <text class="detail-unit">冲煮手法</text>
+      </view>
+      <view class="detail-item" wx:if="{{log.filterCup}}">
+        <text class="detail-value" style="font-size:28rpx;">{{log.filterCup}}</text>
+        <text class="detail-unit">滤杯</text>
+      </view>
     </view>
   </view>
 
@@ -92,18 +100,29 @@
     </view>
   </view>
 
-  <!-- Quality Ratings -->
-  <view class="card">
+  <!-- Taste -->
+  <view class="card" wx:if="{{log.taste || log.overall}}">
     <view class="section-title">
-      <text class="icon">⭐</text>
-      <text>品质评分</text>
+      <text class="icon">☕</text>
+      <text>味道评价</text>
     </view>
-    <view class="overall-row">
+    <!-- New taste tag -->
+    <view wx:if="{{log.taste}}" class="taste-display">
+      <text class="taste-emoji">{{log.taste === 'good' ? '👍' : '👎'}}</text>
+      <text class="taste-text">{{log.taste === 'good' ? '好喝' : '难喝'}}</text>
+    </view>
+    <!-- Bad reasons -->
+    <view wx:if="{{log.taste === 'bad' && log.badReasons && log.badReasons.length > 0}}" class="bad-reasons-display">
+      <view class="bad-reason-tag" wx:for="{{log.badReasons}}" wx:key="*this">
+        <text>{{f.getBadReason(item)}}</text>
+      </view>
+    </view>
+    <!-- Backward compat: old overall score -->
+    <view wx:if="{{!log.taste && log.overall}}" class="overall-row">
       <text class="overall-label">综合评分</text>
-      <text class="overall-score">{{overallScore}}</text>
+      <text class="overall-score">{{log.overall}}</text>
       <text class="overall-max">/5</text>
     </view>
-    <radar-chart dims="{{qualityDims}}" size="{{220}}" />
   </view>
 
   <!-- Notes -->

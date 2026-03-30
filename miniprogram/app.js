@@ -30,6 +30,9 @@ App({
           this.globalData.isLoggedIn = true
           this.globalData.userOpenid = state.openid || ''
           this.globalData.nickname = state.nickname || ''
+          this.globalData.onboardingDone = state.onboardingDone || false
+          this.globalData.grinders = state.grinders || []
+          this.globalData.filterCups = state.filterCups || []
           return
         }
         wx.removeStorageSync(LOGIN_KEY)
@@ -55,7 +58,7 @@ App({
         content: '登录后才能使用此功能，是否前往登录？',
         confirmText: '去登录',
         cancelText: '取消',
-        confirmColor: '#4A2C2A',
+        confirmColor: '#1C1C1E',
         success: (res) => {
           if (res.confirm) {
             wx.navigateTo({ url: '/pages/login/index' })
@@ -89,6 +92,9 @@ App({
     isLoggedIn: false,
     userOpenid: '',
     nickname: '',
+    onboardingDone: false,
+    grinders: [],
+    filterCups: [],
   },
 
   /** Check cloud + network, show toast on failure. Returns true if OK. */

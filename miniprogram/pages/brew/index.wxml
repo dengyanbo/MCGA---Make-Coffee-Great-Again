@@ -1,0 +1,178 @@
+<wxs src="../../utils/filters.wxs" module="f" />
+
+<view class="brew-page">
+  <!-- State A: Choose method -->
+  <view wx:if="{{state === 'A'}}" class="brew-state-a {{animateIn ? 'fade-in' : ''}}">
+    <view class="brew-header">
+      <text class="brew-title">选择冲煮方式</text>
+    </view>
+    <view class="brew-methods">
+      <view class="brew-method-card" bindtap="onChoosePourover">
+        <text class="brew-method-icon">☕</text>
+        <text class="brew-method-label">手冲咖啡</text>
+        <text class="brew-method-desc">Pour Over</text>
+      </view>
+      <view class="brew-method-card brew-method-disabled" bindtap="onChooseColdbrew">
+        <text class="brew-method-icon">🧊</text>
+        <text class="brew-method-label">冷萃咖啡</text>
+        <text class="brew-method-soon">即将推出</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- State B: Set params -->
+  <view wx:elif="{{state === 'B'}}" class="brew-state-b {{animateIn ? 'fade-in' : ''}}">
+    <view class="brew-header">
+      <text class="brew-title">冲煮参数</text>
+    </view>
+
+    <!-- Water temp -->
+    <view class="brew-param-card" bindtap="onTapTemp">
+      <text class="brew-param-label">水温</text>
+      <view class="brew-param-right">
+        <text class="brew-param-value">{{waterTemp}}°C</text>
+        <text class="brew-param-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- Filter cup -->
+    <view class="brew-param-card" bindtap="onTapFilterCup">
+      <text class="brew-param-label">滤杯</text>
+      <view class="brew-param-right">
+        <text class="brew-param-value">{{filterCup || '未选择'}}</text>
+        <text class="brew-param-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- Brew technique segmented -->
+    <view class="brew-technique-section">
+      <text class="brew-param-label" style="margin-bottom: 16rpx; display: block;">冲煮手法</text>
+      <view class="brew-technique-seg">
+        <view class="brew-tech-option {{brewTechnique === 'yidaoliu' ? 'active' : ''}}"
+          data-technique="yidaoliu" bindtap="onSelectTechnique">
+          <text>一刀流</text>
+        </view>
+        <view class="brew-tech-option {{brewTechnique === 'sanduanshi' ? 'active' : ''}}"
+          data-technique="sanduanshi" bindtap="onSelectTechnique">
+          <text>三段式</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Start button -->
+    <view class="brew-start-wrap">
+      <view class="brew-start-btn" bindtap="onStartBrew">
+        <text class="brew-start-text">开始冲煮</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- State C: Timer -->
+  <view wx:elif="{{state === 'C'}}" class="brew-state-c {{animateIn ? 'fade-in' : ''}}">
+    <!-- Timer done -->
+    <view wx:if="{{timerDone}}" class="brew-done-wrap">
+      <text class="brew-done-emoji">☕</text>
+      <text class="brew-done-title">Great Coffee is Ready!</text>
+      <view class="brew-done-btn" bindtap="onFinishBrew">
+        <text>品尝 & 记录</text>
+      </view>
+    </view>
+
+    <!-- Timer running -->
+    <view wx:else class="brew-timer-wrap">
+      <!-- Current step display -->
+      <view class="brew-step-display" wx:if="{{currentStep}}">
+        <text class="brew-step-action">{{currentStep.label}}</text>
+        <text class="brew-step-desc">{{currentStep.description}}</text>
+        <text class="brew-step-pattern" wx:if="{{currentStep.pourPattern}}">
+          {{currentStep.pourPattern === 'center' ? '中心注水' : '绕圈注水'}}
+        </text>
+      </view>
+
+      <!-- Timer display -->
+      <view class="brew-timer-display">
+        <text class="brew-timer-value">{{f.formatTime(elapsedTime)}}</text>
+        <text class="brew-timer-total">/ {{f.formatTime(totalTime)}}</text>
+      </view>
+
+      <!-- Progress bar -->
+      <view class="brew-progress-wrap">
+        <view class="brew-progress-bar">
+          <view class="brew-progress-fill" style="width: {{totalTime > 0 ? (elapsedTime / totalTime * 100) : 0}}%"></view>
+        </view>
+        <!-- Step markers -->
+        <view class="brew-step-markers">
+          <view class="brew-step-marker" wx:for="{{steps}}" wx:key="startTime"
+            style="left: {{totalTime > 0 ? (item.startTime / totalTime * 100) : 0}}%"
+            wx:if="{{item.startTime > 0}}">
+          </view>
+        </view>
+      </view>
+
+      <!-- Step info -->
+      <view class="brew-steps-info">
+        <text class="brew-step-counter">步骤 {{currentStepIndex + 1}} / {{steps.length}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- State D: Feedback -->
+  <view wx:elif="{{state === 'D'}}" class="brew-state-d {{animateIn ? 'fade-in' : ''}}">
+    <view wx:if="{{!showBadReasons}}" class="brew-feedback-main">
+      <text class="brew-feedback-title">这杯咖啡怎么样？</text>
+      <view class="brew-feedback-buttons">
+        <view class="brew-feedback-btn brew-feedback-good" bindtap="onTasteGood">
+          <text class="brew-feedback-emoji">👍</text>
+          <text class="brew-feedback-label">好喝</text>
+        </view>
+        <view class="brew-feedback-btn brew-feedback-bad" bindtap="onTasteBad">
+          <text class="brew-feedback-emoji">👎</text>
+          <text class="brew-feedback-label">难喝</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="brew-bad-reasons">
+      <text class="brew-feedback-title">哪里不好？</text>
+      <view class="brew-reason-options">
+        <view class="brew-reason-chip {{badReasons.indexOf('too_bitter') >= 0 ? 'selected' : ''}}"
+          data-reason="too_bitter" bindtap="onToggleBadReason">
+          <text>太苦</text>
+        </view>
+        <view class="brew-reason-chip {{badReasons.indexOf('too_sour') >= 0 ? 'selected' : ''}}"
+          data-reason="too_sour" bindtap="onToggleBadReason">
+          <text>太酸</text>
+        </view>
+      </view>
+      <view class="brew-custom-reason">
+        <input class="brew-custom-input" placeholder="其他原因..." value="{{customReason}}" bindinput="onCustomReasonInput" />
+      </view>
+      <view class="brew-submit-bad {{saving ? 'disabled' : ''}}" bindtap="onSubmitBadFeedback">
+        <text>{{saving ? '保存中...' : '提交反馈'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Back button (always visible except during timer) -->
+  <view wx:if="{{state !== 'C' || timerDone}}" class="brew-back" bindtap="onGoBack">
+    <text class="brew-back-text">← 返回</text>
+  </view>
+</view>
+
+<!-- Temp Picker -->
+<view wx:if="{{tempPickerVisible}}" class="picker-mask" bindtap="onTempPickerCancel">
+  <view class="picker-sheet" catchtap="">
+    <view class="picker-header">
+      <text class="picker-cancel" bindtap="onTempPickerCancel">取消</text>
+      <text class="picker-title">水温</text>
+      <text class="picker-confirm" bindtap="onTempPickerConfirm">确定</text>
+    </view>
+    <picker-view value="{{tempPickerIndex}}" bindchange="onTempPickerChange" class="picker-body" indicator-style="height: 80rpx;">
+      <picker-view-column>
+        <view wx:for="{{tempValues}}" wx:key="*this" class="picker-item">
+          {{item}} °C
+        </view>
+      </picker-view-column>
+    </picker-view>
+  </view>
+</view>

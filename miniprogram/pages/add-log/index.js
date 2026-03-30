@@ -51,7 +51,6 @@ Page({
     brewMethodIndex: -1,
     brewMethods: [
       { value: 'pourover', label: '手冲', icon: '☕' },
-      { value: 'espresso', label: '意式', icon: '⚙️' },
       { value: 'coldbrew', label: '冷萃', icon: '🧊' },
     ],
 
@@ -66,14 +65,11 @@ Page({
     remarks: '',
     remarksExpanded: false,
 
-    ratings: [
-      { dim: 'aroma', label: '香气', score: 0 },
-      { dim: 'acidity', label: '酸质', score: 0 },
-      { dim: 'sweetness', label: '甜度', score: 0 },
-      { dim: 'body', label: '醇厚度', score: 0 },
-      { dim: 'aftertaste', label: '余韵', score: 0 },
-      { dim: 'overall', label: '综合', score: 0 },
-    ],
+    taste: '',
+    badReasons: [],
+    customBadReason: '',
+    filterCup: '',
+    filterCups: [],
 
     notes: '',
     notesExpanded: false,
@@ -96,6 +92,8 @@ Page({
     PARAM_FIELDS.forEach(f => {
       this._ranges[f] = generateRange(PARAM_CONFIGS[f].min, PARAM_CONFIGS[f].max, PARAM_CONFIGS[f].step)
     })
+
+    this.setData({ filterCups: app.globalData.filterCups || [] })
 
     if (options.id) {
       // Editing requires login
@@ -154,7 +152,6 @@ Page({
       if (!log) throw new Error('记录不存在或已被删除')
 
       const roastIndex = this.data.roastValues.indexOf(log.roastLevel)
-      const ratings = this.data.ratings.map(r => ({ ...r, score: log[r.dim] || 0 }))
       const brewMethodIndex = this.data.brewMethods.findIndex(m => m.value === (log.brewMethod || ''))
       this.setData({
         beanName: log.beanName || '',
@@ -164,6 +161,7 @@ Page({
         brewMethod: log.brewMethod || '',
         brewMethodIndex,
         grinderModel: log.grinderModel || '',
+        filterCup: log.filterCup || '',
         grindSize: log.grindSize != null ? log.grindSize : null,
         coffeeDose: log.coffeeDose != null ? log.coffeeDose : null,
         waterAmount: log.waterAmount != null ? log.waterAmount : null,
@@ -173,7 +171,8 @@ Page({
         humidity: log.humidity != null ? log.humidity : null,
         remarks: log.remarks || '',
         remarksExpanded: !!(log.remarks),
-        ratings,
+        taste: log.taste || '',
+        badReasons: log.badReasons || [],
         notes: log.notes || '',
         notesExpanded: !!(log.notes),
       })
@@ -227,50 +226,39 @@ Page({
     }).exec()
   },
 
-  // --- Rating drag & tap ---
-  onRatingTouchStart(e) {
-    this._ratingTouchIndex = Number(e.currentTarget.dataset.index)
-    this._ratingMoved = false
-    this._ratingStartScore = this.data.ratings[this._ratingTouchIndex].score
-    this._handleRatingTouch(e)
+  // --- Taste rating ---
+  onSelectTaste(e) {
+    const taste = e.currentTarget.dataset.taste
+    this.setData({ taste, badReasons: taste === 'bad' ? this.data.badReasons : [] })
   },
-  onRatingTouchMove(e) {
-    if (this._ratingTouchIndex == null) return
-    this._ratingMoved = true
-    this._handleRatingTouch(e)
+
+  onToggleBadReason(e) {
+    const reason = e.currentTarget.dataset.reason
+    let badReasons = [...this.data.badReasons]
+    const idx = badReasons.indexOf(reason)
+    if (idx >= 0) badReasons.splice(idx, 1)
+    else badReasons.push(reason)
+    this.setData({ badReasons })
   },
-  onRatingTouchEnd(e) {
-    if (this._ratingTouchIndex == null) return
-    if (!this._ratingMoved) {
-      // Tap on same score as before → toggle off
-      const rIdx = this._ratingTouchIndex
-      const touch = e.changedTouches[0]
-      const query = this.createSelectorQuery()
-      query.select(`#ratingTrack${rIdx}`).boundingClientRect(rect => {
-        if (!rect) return
-        const x = touch.clientX - rect.left
-        const segW = rect.width / 5
-        const score = Math.max(1, Math.min(5, Math.ceil(x / segW)))
-        if (score === this._ratingStartScore) {
-          this.setData({ [`ratings[${rIdx}].score`]: 0 })
-        }
-      }).exec()
-    }
-    this._ratingTouchIndex = null
+
+  onCustomBadReasonInput(e) {
+    this.setData({ customBadReason: e.detail.value })
   },
-  _handleRatingTouch(e) {
-    const rIdx = this._ratingTouchIndex
-    const touch = e.touches[0]
-    const query = this.createSelectorQuery()
-    query.select(`#ratingTrack${rIdx}`).boundingClientRect(rect => {
-      if (!rect) return
-      const x = touch.clientX - rect.left
-      const segW = rect.width / 5
-      const score = Math.max(1, Math.min(5, Math.ceil(x / segW)))
-      if (score !== this.data.ratings[rIdx].score) {
-        this.setData({ [`ratings[${rIdx}].score`]: score })
+
+  // --- Filter cup ---
+  onSelectFilterCup(e) {
+    const cups = this.data.filterCups
+    if (cups.length === 0) return
+    wx.showActionSheet({
+      itemList: cups,
+      success: (res) => {
+        this.setData({ filterCup: cups[res.tapIndex] })
       }
-    }).exec()
+    })
+  },
+
+  onInputFilterCup(e) {
+    this.setData({ filterCup: e.detail.value })
   },
 
   // --- Collapsible toggles ---
@@ -333,14 +321,18 @@ Page({
     if (!(await app.checkConnectivity())) return
     this.setData({ submitting: true })
 
-    const ratingData = {}
-    this.data.ratings.forEach(r => { ratingData[r.dim] = r.score })
+    let badReasons = [...this.data.badReasons]
+    const customBad = this.data.customBadReason.trim()
+    if (this.data.taste === 'bad' && customBad) {
+      badReasons.push('other:' + customBad)
+    }
 
     const data = {
       beanName: this.data.beanName.trim(),
       roastLevel: this.data.roastLevel,
       brewMethod: this.data.brewMethod,
       grinderModel: this.data.grinderModel.trim(),
+      filterCup: this.data.filterCup,
       grindSize: this.data.grindSize,
       coffeeDose: this.data.coffeeDose,
       waterAmount: this.data.waterAmount,
@@ -349,7 +341,8 @@ Page({
       ambientTemp: this.data.ambientTemp,
       humidity: this.data.humidity,
       remarks: this.data.remarks.trim(),
-      ...ratingData,
+      taste: this.data.taste,
+      badReasons: this.data.taste === 'bad' ? badReasons : [],
       notes: this.data.notes.trim(),
     }
 

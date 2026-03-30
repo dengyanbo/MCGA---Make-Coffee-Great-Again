@@ -88,7 +88,7 @@
       </view>
     </view>
     <view wx:if="{{log.remarks}}" style="margin-top: 20rpx;">
-      <text class="notes-text" style="font-size:26rpx; color:#6F4E37;">💬 {{log.remarks}}</text>
+      <text class="notes-text" style="font-size:26rpx; color:#8E8E93;">💬 {{log.remarks}}</text>
     </view>
   </view>
 

@@ -7,11 +7,11 @@
     "pages/stats/index"
   ],
   "window": {
-    "backgroundColor": "#FFF8F0",
+    "backgroundColor": "#F2F2F7",
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#4A2C2A",
+    "navigationBarBackgroundColor": "#F2F2F7",
     "navigationBarTitleText": "MCGA Coffee",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "black"
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",

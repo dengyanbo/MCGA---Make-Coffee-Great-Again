@@ -1,8 +1,8 @@
-/**app.wxss — MCGA Coffee Theme**/
+/**app.wxss — MCGA Coffee · Apple iOS Theme**/
 page {
-  background: #FFF8F0;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
-  color: #2D1810;
+  background: #F2F2F7;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  color: #1C1C1E;
   font-size: 28rpx;
   line-height: 1.6;
 }
@@ -24,19 +24,19 @@ button {
 
 button::after { border: none; }
 
-/* Cards */
+/* Cards — iOS grouped style */
 .card {
   background: #FFFFFF;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 32rpx;
   margin: 0 32rpx 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(74, 44, 42, 0.06);
+  box-shadow: none;
 }
 
 .section-title {
   font-size: 30rpx;
   font-weight: 600;
-  color: #4A2C2A;
+  color: #1C1C1E;
   margin-bottom: 24rpx;
   display: flex;
   align-items: center;
@@ -57,7 +57,7 @@ button::after { border: none; }
 
 .rating-label {
   font-size: 28rpx;
-  color: #6F4E37;
+  color: #3A3A3C;
   min-width: 120rpx;
 }
 
@@ -73,11 +73,11 @@ button::after { border: none; }
   align-items: center;
   justify-content: center;
   font-size: 36rpx;
-  color: #E0D5C8;
+  color: #D1D1D6;
 }
 
 .star.active {
-  color: #C4A882;
+  color: #636366;
 }
 
 /* Tags */
@@ -89,18 +89,18 @@ button::after { border: none; }
 }
 
 .tag-method {
-  background: #F0EBE3;
-  color: #6F4E37;
+  background: #F2F2F7;
+  color: #636366;
 }
 
 .tag-roast {
-  background: #E8E0D4;
-  color: #4A2C2A;
+  background: #E5E5EA;
+  color: #3A3A3C;
 }
 
 /* Primary button */
 .btn-primary {
-  background: linear-gradient(135deg, #6F4E37, #4A2C2A) !important;
+  background: #1C1C1E !important;
   color: #FFFFFF !important;
   border-radius: 48rpx !important;
   height: 88rpx;
@@ -117,7 +117,7 @@ button::after { border: none; }
 
 .form-label {
   font-size: 26rpx;
-  color: #8B7355;
+  color: #8E8E93;
   margin-bottom: 12rpx;
   display: block;
 }
@@ -125,24 +125,24 @@ button::after { border: none; }
 .form-input {
   width: 100%;
   height: 80rpx;
-  border: 0.5rpx solid #E8DDD0;
+  border: 0.5rpx solid #D1D1D6;
   border-radius: 12rpx;
   padding: 0 24rpx;
   font-size: 28rpx;
-  color: #2D1810;
-  background: #FEFCF9;
+  color: #1C1C1E;
+  background: #FFFFFF;
   box-sizing: border-box;
 }
 
 .form-textarea {
   width: 100%;
   min-height: 160rpx;
-  border: 0.5rpx solid #E8DDD0;
+  border: 0.5rpx solid #D1D1D6;
   border-radius: 12rpx;
   padding: 20rpx 24rpx;
   font-size: 28rpx;
-  color: #2D1810;
-  background: #FEFCF9;
+  color: #1C1C1E;
+  background: #FFFFFF;
   box-sizing: border-box;
 }
 
@@ -155,7 +155,7 @@ button::after { border: none; }
 
 .loading-text {
   font-size: 24rpx;
-  color: #C4A882;
+  color: #8E8E93;
 }
 
 .empty-state {
@@ -167,16 +167,16 @@ button::after { border: none; }
 }
 
 .empty-icon { font-size: 120rpx; margin-bottom: 32rpx; }
-.empty-title { font-size: 34rpx; font-weight: 600; color: #4A2C2A; margin-bottom: 16rpx; }
-.empty-desc { font-size: 26rpx; color: #8B7355; text-align: center; }
+.empty-title { font-size: 34rpx; font-weight: 600; color: #1C1C1E; margin-bottom: 16rpx; }
+.empty-desc { font-size: 26rpx; color: #8E8E93; text-align: center; }
 
 /* Retry Button */
 .retry-btn {
   margin-top: 40rpx;
   padding: 16rpx 48rpx;
-  background: #F5EDE3;
+  background: #E5E5EA;
   border-radius: 40rpx;
-  color: #4A2C2A;
+  color: #3A3A3C;
   font-size: 28rpx;
   font-weight: 500;
 }

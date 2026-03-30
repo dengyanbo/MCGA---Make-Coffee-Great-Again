@@ -2,7 +2,7 @@
   padding-bottom: 120rpx;
 }
 
-/* Header */
+/* Header — iOS large title style */
 .header {
   display: flex;
   align-items: center;
@@ -13,13 +13,13 @@
 .header-title {
   font-size: 44rpx;
   font-weight: 700;
-  color: #4A2C2A;
+  color: #1C1C1E;
   display: block;
 }
 
 .header-subtitle {
   font-size: 24rpx;
-  color: #8B7355;
+  color: #8E8E93;
   margin-top: 4rpx;
   display: block;
 }
@@ -44,7 +44,7 @@
   border-radius: 20rpx;
   padding: 28rpx 32rpx;
   margin: 0 32rpx 20rpx;
-  box-shadow: 0 4rpx 16rpx rgba(74, 44, 42, 0.06);
+  box-shadow: none;
 }
 
 .log-card:active {
@@ -65,7 +65,7 @@
 .bean-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #2D1810;
+  color: #1C1C1E;
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -90,13 +90,13 @@
 .score-value {
   font-size: 48rpx;
   font-weight: 700;
-  color: #4A2C2A;
+  color: #1C1C1E;
   line-height: 1;
 }
 
 .score-label {
   font-size: 20rpx;
-  color: #8B7355;
+  color: #8E8E93;
   margin-top: 4rpx;
 }
 
@@ -106,17 +106,17 @@
   align-items: center;
   margin-top: 16rpx;
   padding-top: 16rpx;
-  border-top: 1rpx solid #F0EBE3;
+  border-top: 1rpx solid #F2F2F7;
 }
 
 .log-params {
   font-size: 24rpx;
-  color: #8B7355;
+  color: #8E8E93;
 }
 
 .log-date {
   font-size: 22rpx;
-  color: #C4A882;
+  color: #AEAEB2;
 }
 
 /* Show More Button */
@@ -128,9 +128,9 @@
 
 .show-more-btn {
   padding: 20rpx 64rpx;
-  background: #F5EDE3;
+  background: #FFFFFF;
   border-radius: 40rpx;
-  color: #4A2C2A;
+  color: #3A3A3C;
   font-size: 28rpx;
   font-weight: 500;
 }
@@ -143,7 +143,7 @@
 .guest-login-btn {
   margin-top: 32rpx;
   padding: 20rpx 64rpx;
-  background: linear-gradient(135deg, #6F4E37, #4A2C2A);
+  background: #1C1C1E;
   border-radius: 40rpx;
   color: #FFFFFF;
   font-size: 28rpx;
@@ -162,11 +162,11 @@
   width: 112rpx;
   height: 112rpx;
   border-radius: 56rpx;
-  background: linear-gradient(135deg, #6F4E37, #4A2C2A);
+  background: #1C1C1E;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 32rpx rgba(74, 44, 42, 0.35);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.15);
   z-index: 100;
 }
 

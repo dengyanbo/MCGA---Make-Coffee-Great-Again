@@ -38,12 +38,20 @@ Page({
     roastLevels: ['浅烘', '中浅', '中度', '中深', '深烘'],
     roastValues: ['light', 'medium_light', 'medium', 'medium_dark', 'dark'],
     roastColors: ['#D4A574', '#B8864E', '#8B6333', '#5C3D1E', '#2D1810'],
+    roastImages: [
+      '/images/roast_levels/roast_light.png',
+      '/images/roast_levels/roast_medium_light.png',
+      '/images/roast_levels/roast_medium.png',
+      '/images/roast_levels/roast_medium_dark.png',
+      '/images/roast_levels/roast_dark.png',
+    ],
     roastIndex: -1,
 
     brewMethod: '',
+    brewMethodIndex: -1,
     brewMethods: [
       { value: 'pourover', label: '手冲', icon: '☕' },
-      { value: 'espresso', label: '意式', icon: '🫗' },
+      { value: 'espresso', label: '意式', icon: '⚙️' },
       { value: 'coldbrew', label: '冷萃', icon: '🧊' },
     ],
 
@@ -56,6 +64,7 @@ Page({
     ambientTemp: null,
     humidity: null,
     remarks: '',
+    remarksExpanded: false,
 
     ratings: [
       { dim: 'aroma', label: '香气', score: 0 },
@@ -67,6 +76,7 @@ Page({
     ],
 
     notes: '',
+    notesExpanded: false,
     submitting: false,
     isEdit: false,
     editId: '',
@@ -145,12 +155,14 @@ Page({
 
       const roastIndex = this.data.roastValues.indexOf(log.roastLevel)
       const ratings = this.data.ratings.map(r => ({ ...r, score: log[r.dim] || 0 }))
+      const brewMethodIndex = this.data.brewMethods.findIndex(m => m.value === (log.brewMethod || ''))
       this.setData({
         beanName: log.beanName || '',
         origin: log.origin || '',
         roastLevel: log.roastLevel || '',
         roastIndex,
         brewMethod: log.brewMethod || '',
+        brewMethodIndex,
         grinderModel: log.grinderModel || '',
         grindSize: log.grindSize != null ? log.grindSize : null,
         coffeeDose: log.coffeeDose != null ? log.coffeeDose : null,
@@ -160,8 +172,10 @@ Page({
         ambientTemp: log.ambientTemp != null ? log.ambientTemp : null,
         humidity: log.humidity != null ? log.humidity : null,
         remarks: log.remarks || '',
+        remarksExpanded: !!(log.remarks),
         ratings,
         notes: log.notes || '',
+        notesExpanded: !!(log.notes),
       })
     } catch (err) {
       console.error('Load log failed:', err)
@@ -183,12 +197,88 @@ Page({
       this.setData({ roastIndex: idx, roastLevel: this.data.roastValues[idx] })
     }
   },
-  onSelectMethod(e) { this.setData({ brewMethod: e.currentTarget.dataset.value }) },
+  onSelectMethod(e) {
+    const value = e.currentTarget.dataset.value
+    const index = this.data.brewMethods.findIndex(m => m.value === value)
+    this.setData({ brewMethod: value, brewMethodIndex: index })
+  },
 
-  // --- Star ratings ---
-  onTapStar(e) {
-    const { index, star } = e.currentTarget.dataset
-    this.setData({ [`ratings[${index}].score`]: star })
+  // --- Brew method drag ---
+  onBrewTouchStart(e) {
+    this._brewTouchActive = true
+    this._handleBrewTouch(e)
+  },
+  onBrewTouchMove(e) {
+    if (!this._brewTouchActive) return
+    this._handleBrewTouch(e)
+  },
+  _handleBrewTouch(e) {
+    const touch = e.touches[0]
+    const query = this.createSelectorQuery()
+    query.select('#brewSegmented').boundingClientRect(rect => {
+      if (!rect) return
+      const x = touch.clientX - rect.left
+      const segW = rect.width / this.data.brewMethods.length
+      const idx = Math.max(0, Math.min(this.data.brewMethods.length - 1, Math.floor(x / segW)))
+      if (idx !== this.data.brewMethodIndex) {
+        const m = this.data.brewMethods[idx]
+        this.setData({ brewMethod: m.value, brewMethodIndex: idx })
+      }
+    }).exec()
+  },
+
+  // --- Rating drag & tap ---
+  onRatingTouchStart(e) {
+    this._ratingTouchIndex = Number(e.currentTarget.dataset.index)
+    this._ratingMoved = false
+    this._ratingStartScore = this.data.ratings[this._ratingTouchIndex].score
+    this._handleRatingTouch(e)
+  },
+  onRatingTouchMove(e) {
+    if (this._ratingTouchIndex == null) return
+    this._ratingMoved = true
+    this._handleRatingTouch(e)
+  },
+  onRatingTouchEnd(e) {
+    if (this._ratingTouchIndex == null) return
+    if (!this._ratingMoved) {
+      // Tap on same score as before → toggle off
+      const rIdx = this._ratingTouchIndex
+      const touch = e.changedTouches[0]
+      const query = this.createSelectorQuery()
+      query.select(`#ratingTrack${rIdx}`).boundingClientRect(rect => {
+        if (!rect) return
+        const x = touch.clientX - rect.left
+        const segW = rect.width / 5
+        const score = Math.max(1, Math.min(5, Math.ceil(x / segW)))
+        if (score === this._ratingStartScore) {
+          this.setData({ [`ratings[${rIdx}].score`]: 0 })
+        }
+      }).exec()
+    }
+    this._ratingTouchIndex = null
+  },
+  _handleRatingTouch(e) {
+    const rIdx = this._ratingTouchIndex
+    const touch = e.touches[0]
+    const query = this.createSelectorQuery()
+    query.select(`#ratingTrack${rIdx}`).boundingClientRect(rect => {
+      if (!rect) return
+      const x = touch.clientX - rect.left
+      const segW = rect.width / 5
+      const score = Math.max(1, Math.min(5, Math.ceil(x / segW)))
+      if (score !== this.data.ratings[rIdx].score) {
+        this.setData({ [`ratings[${rIdx}].score`]: score })
+      }
+    }).exec()
+  },
+
+  // --- Collapsible toggles ---
+  toggleRemarks() {
+    this.setData({ remarksExpanded: !this.data.remarksExpanded })
+  },
+  toggleNotes() {
+    this.setData({ notesExpanded: !this.data.notesExpanded })
   },
 
   // --- Scroll wheel picker ---

@@ -3,151 +3,147 @@
 <scroll-view scroll-y class="page-add">
   <!-- Bean Info -->
   <view class="card">
-    <view class="section-title"><text class="icon">☕</text><text>豆子信息</text></view>
     <view class="form-group">
       <text class="form-label">咖啡豆名称 *</text>
       <input class="form-input" placeholder="如：埃塞俄比亚 耶加雪菲" value="{{beanName}}" bindinput="onInputBeanName" />
     </view>
-    <view class="form-group">
+    <view class="roast-row">
       <text class="form-label">烘焙度</text>
-      <view class="roast-picker">
-        <view class="roast-beans">
-          <view class="roast-bean {{roastIndex >= 0 ? 'active' : ''}}" data-level="{{0}}" bindtap="onPickRoast"
-            style="color: {{roastIndex >= 0 ? roastColors[roastIndex] : ''}};">🫘</view>
-          <view class="roast-bean {{roastIndex >= 1 ? 'active' : ''}}" data-level="{{1}}" bindtap="onPickRoast"
-            style="color: {{roastIndex >= 1 ? roastColors[roastIndex] : ''}};">🫘</view>
-          <view class="roast-bean {{roastIndex >= 2 ? 'active' : ''}}" data-level="{{2}}" bindtap="onPickRoast"
-            style="color: {{roastIndex >= 2 ? roastColors[roastIndex] : ''}};">🫘</view>
-          <view class="roast-bean {{roastIndex >= 3 ? 'active' : ''}}" data-level="{{3}}" bindtap="onPickRoast"
-            style="color: {{roastIndex >= 3 ? roastColors[roastIndex] : ''}};">🫘</view>
-          <view class="roast-bean {{roastIndex >= 4 ? 'active' : ''}}" data-level="{{4}}" bindtap="onPickRoast"
-            style="color: {{roastIndex >= 4 ? roastColors[roastIndex] : ''}};">🫘</view>
-        </view>
-        <text class="roast-label">{{roastIndex >= 0 ? roastLevels[roastIndex] : '未选择'}}</text>
+      <view class="roast-beans">
+        <view class="roast-bean {{roastIndex >= 0 ? 'active' : ''}}" data-level="{{0}}" bindtap="onPickRoast">
+          <image class="roast-img" src="{{roastImages[0]}}" mode="aspectFit" /></view>
+        <view class="roast-bean {{roastIndex >= 1 ? 'active' : ''}}" data-level="{{1}}" bindtap="onPickRoast">
+          <image class="roast-img" src="{{roastImages[1]}}" mode="aspectFit" /></view>
+        <view class="roast-bean {{roastIndex >= 2 ? 'active' : ''}}" data-level="{{2}}" bindtap="onPickRoast">
+          <image class="roast-img" src="{{roastImages[2]}}" mode="aspectFit" /></view>
+        <view class="roast-bean {{roastIndex >= 3 ? 'active' : ''}}" data-level="{{3}}" bindtap="onPickRoast">
+          <image class="roast-img" src="{{roastImages[3]}}" mode="aspectFit" /></view>
+        <view class="roast-bean {{roastIndex >= 4 ? 'active' : ''}}" data-level="{{4}}" bindtap="onPickRoast">
+          <image class="roast-img" src="{{roastImages[4]}}" mode="aspectFit" /></view>
       </view>
+      <text class="roast-label">{{roastIndex >= 0 ? roastLevels[roastIndex] : ''}}</text>
     </view>
   </view>
 
   <!-- Brew Method -->
   <view class="card">
-    <view class="section-title"><text class="icon">🔧</text><text>冲煮方式 *</text></view>
-    <view class="method-grid">
-      <view class="method-item {{brewMethod === item.value ? 'active' : ''}}"
+    <view class="glass-segmented" id="brewSegmented"
+      bindtouchstart="onBrewTouchStart" bindtouchmove="onBrewTouchMove">
+      <view class="glass-indicator" wx:if="{{brewMethodIndex >= 0}}"
+        style="transform: translateX({{brewMethodIndex * 100}}%)"></view>
+      <view class="glass-segment {{brewMethod === item.value ? 'active' : ''}}"
         wx:for="{{brewMethods}}" wx:key="value"
         data-value="{{item.value}}" bindtap="onSelectMethod">
-        <text class="method-icon">{{item.icon}}</text>
-        <text class="method-label">{{item.label}}</text>
+        <text class="glass-segment-icon">{{item.icon}}</text>
+        <text class="glass-segment-label">{{item.label}}</text>
       </view>
     </view>
   </view>
 
-  <!-- Brew Parameters -->
+  <!-- Brew Parameters — 2-column grid -->
   <view class="card">
-    <view class="section-title"><text class="icon">⚙️</text><text>冲煮参数</text></view>
-
-    <!-- Grinder Model (text input) -->
+    <!-- Grinder Model (text input, full width) -->
     <view class="form-group">
       <text class="form-label">磨豆机型号</text>
       <input class="form-input" placeholder="如：Comandante C40" value="{{grinderModel}}" bindinput="onInputGrinderModel" />
     </view>
 
-    <!-- Numeric params with scroll picker -->
-    <view class="param-list">
-      <view class="param-cell" data-field="grindSize" bindtap="onTapParam">
-        <text class="param-cell-label">研磨度</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{grindSize != null ? grindSize : '--'}}</text>
-          <text class="param-cell-unit">格</text>
-          <text class="param-cell-arrow">▾</text>
+    <view class="param-grid">
+      <view class="param-grid-cell" data-field="grindSize" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">研磨度</text>
+          <text class="param-grid-value">{{grindSize != null ? grindSize : '--'}} <text class="param-grid-unit">格</text></text>
         </view>
       </view>
-      <view class="param-cell" data-field="coffeeDose" bindtap="onTapParam">
-        <text class="param-cell-label">粉量</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{coffeeDose != null ? coffeeDose : '--'}}</text>
-          <text class="param-cell-unit">g</text>
-          <text class="param-cell-arrow">▾</text>
+      <view class="param-grid-cell" data-field="coffeeDose" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">粉量</text>
+          <text class="param-grid-value">{{coffeeDose != null ? coffeeDose : '--'}} <text class="param-grid-unit">g</text></text>
         </view>
       </view>
-      <view class="param-cell" data-field="waterAmount" bindtap="onTapParam">
-        <text class="param-cell-label">水量</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{waterAmount != null ? waterAmount : '--'}}</text>
-          <text class="param-cell-unit">ml</text>
-          <text class="param-cell-arrow">▾</text>
+      <view class="param-grid-cell" data-field="waterAmount" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">水量</text>
+          <text class="param-grid-value">{{waterAmount != null ? waterAmount : '--'}} <text class="param-grid-unit">ml</text></text>
         </view>
       </view>
-      <view class="param-cell" data-field="waterTemp" bindtap="onTapParam">
-        <text class="param-cell-label">水温</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{waterTemp != null ? waterTemp : '--'}}</text>
-          <text class="param-cell-unit">°C</text>
-          <text class="param-cell-arrow">▾</text>
+      <view class="param-grid-cell" data-field="waterTemp" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">水温</text>
+          <text class="param-grid-value">{{waterTemp != null ? waterTemp : '--'}} <text class="param-grid-unit">°C</text></text>
         </view>
       </view>
-      <view class="param-cell" data-field="brewTime" bindtap="onTapParam">
-        <text class="param-cell-label">萃取时间</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{brewTime != null ? brewTime : '--'}}</text>
-          <text class="param-cell-unit">秒</text>
-          <text class="param-cell-arrow">▾</text>
+      <view class="param-grid-cell" data-field="brewTime" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">萃取时间</text>
+          <text class="param-grid-value">{{brewTime != null ? brewTime : '--'}} <text class="param-grid-unit">秒</text></text>
         </view>
       </view>
-    </view>
-
-    <!-- Ratio display -->
-    <view wx:if="{{coffeeDose && waterAmount}}" class="ratio-display">
-      <text class="ratio-label">粉水比</text>
-      <text class="ratio-value">{{f.formatRatio(coffeeDose, waterAmount)}}</text>
+      <view class="param-grid-cell" wx:if="{{coffeeDose && waterAmount}}">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">粉水比</text>
+          <text class="param-grid-value">{{f.formatRatio(coffeeDose, waterAmount)}}</text>
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- Environment -->
   <view class="card">
-    <view class="section-title"><text class="icon">🌡️</text><text>环境参数</text></view>
-    <view class="param-list">
-      <view class="param-cell" data-field="ambientTemp" bindtap="onTapParam">
-        <text class="param-cell-label">气温</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{ambientTemp != null ? ambientTemp : '--'}}</text>
-          <text class="param-cell-unit">°C</text>
-          <text class="param-cell-arrow">▾</text>
+    <view class="param-grid">
+      <view class="param-grid-cell" data-field="ambientTemp" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">气温</text>
+          <text class="param-grid-value">{{ambientTemp != null ? ambientTemp : '--'}} <text class="param-grid-unit">°C</text></text>
         </view>
       </view>
-      <view class="param-cell" data-field="humidity" bindtap="onTapParam">
-        <text class="param-cell-label">湿度</text>
-        <view class="param-cell-right">
-          <text class="param-cell-value">{{humidity != null ? humidity : '--'}}</text>
-          <text class="param-cell-unit">%</text>
-          <text class="param-cell-arrow">▾</text>
+      <view class="param-grid-cell" data-field="humidity" bindtap="onTapParam">
+        <view class="param-grid-inner">
+          <text class="param-grid-label">湿度</text>
+          <text class="param-grid-value">{{humidity != null ? humidity : '--'}} <text class="param-grid-unit">%</text></text>
         </view>
       </view>
     </view>
     <view class="form-group" style="margin-top: 20rpx;">
-      <text class="form-label">备注</text>
-      <textarea class="form-textarea" placeholder="冲煮备注..." value="{{remarks}}" bindinput="onInputRemarks" maxlength="200" />
+      <view class="collapsible-toggle" bindtap="toggleRemarks">
+        <text class="form-label" style="margin-bottom: 0;">备注</text>
+        <text class="collapse-arrow {{remarksExpanded ? 'expanded' : ''}}">▾</text>
+      </view>
+      <view class="collapsible-body {{remarksExpanded ? 'expanded' : ''}}">
+        <textarea class="form-textarea" placeholder="冲煮备注..." value="{{remarks}}" bindinput="onInputRemarks" maxlength="200" />
+      </view>
     </view>
   </view>
 
   <!-- Quality Rating -->
   <view class="card">
     <view class="section-title"><text class="icon">⭐</text><text>品质评分</text></view>
-    <view class="rating-row" wx:for="{{ratings}}" wx:key="dim" wx:for-index="rIdx">
-      <text class="rating-label">{{item.label}}</text>
-      <view class="rating-stars">
-        <view class="star {{item.score >= 1 ? 'active' : ''}}" data-index="{{rIdx}}" data-star="{{1}}" bindtap="onTapStar">●</view>
-        <view class="star {{item.score >= 2 ? 'active' : ''}}" data-index="{{rIdx}}" data-star="{{2}}" bindtap="onTapStar">●</view>
-        <view class="star {{item.score >= 3 ? 'active' : ''}}" data-index="{{rIdx}}" data-star="{{3}}" bindtap="onTapStar">●</view>
-        <view class="star {{item.score >= 4 ? 'active' : ''}}" data-index="{{rIdx}}" data-star="{{4}}" bindtap="onTapStar">●</view>
-        <view class="star {{item.score >= 5 ? 'active' : ''}}" data-index="{{rIdx}}" data-star="{{5}}" bindtap="onTapStar">●</view>
+    <view class="rating-row" wx:for="{{ratings}}" wx:key="dim" wx:for-index="rIdx" wx:for-item="rating">
+      <text class="rating-label">{{rating.label}}</text>
+      <view class="glass-rating">
+        <view class="glass-rating-track" id="ratingTrack{{rIdx}}"
+          data-index="{{rIdx}}"
+          bindtouchstart="onRatingTouchStart" bindtouchmove="onRatingTouchMove" bindtouchend="onRatingTouchEnd">
+          <view class="glass-rating-option"
+            wx:for="{{[1,2,3,4,5]}}" wx:for-item="s" wx:key="*this">
+            <text class="glass-rating-num {{rating.score === s ? 'visible' : ''}}">{{s}}</text>
+          </view>
+          <view class="glass-rating-slider" wx:if="{{rating.score > 0}}"
+            style="width: {{rating.score * 20}}%;"></view>
+        </view>
       </view>
     </view>
   </view>
 
   <!-- Tasting Notes -->
   <view class="card">
-    <view class="section-title"><text class="icon">📝</text><text>品鉴笔记</text></view>
-    <textarea class="form-textarea" placeholder="记录这杯咖啡的风味、口感和心得..." value="{{notes}}" bindinput="onInputNotes" maxlength="500" />
+    <view class="section-title" bindtap="toggleNotes">
+      <text class="icon">📝</text><text>品鉴笔记</text>
+      <text class="collapse-arrow {{notesExpanded ? 'expanded' : ''}}">▾</text>
+    </view>
+    <view class="collapsible-body {{notesExpanded ? 'expanded' : ''}}">
+      <textarea class="form-textarea" placeholder="记录这杯咖啡的风味、口感和心得..." value="{{notes}}" bindinput="onInputNotes" maxlength="500" />
+    </view>
   </view>
 
   <!-- Submit -->

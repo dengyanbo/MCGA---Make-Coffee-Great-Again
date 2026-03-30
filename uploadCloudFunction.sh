@@ -1,1 +1,0 @@
-${installPath} cloud functions deploy --e ${envId} --n coffeeLogFunctions --r --project ${projectPath}

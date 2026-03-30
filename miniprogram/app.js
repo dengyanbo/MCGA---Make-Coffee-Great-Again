@@ -1,3 +1,4 @@
+const { cloudEnvId } = require('./config.local')
 const LOGIN_KEY = 'loginState'
 const LOGIN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 
@@ -9,7 +10,7 @@ App({
       return
     }
     try {
-      wx.cloud.init({ env: 'mcga-prod-9gxweirnce32f3b0', traceUser: true })
+      wx.cloud.init({ env: cloudEnvId, traceUser: true })
       this.globalData.cloudReady = true
     } catch (err) {
       console.error('云开发初始化失败:', err)

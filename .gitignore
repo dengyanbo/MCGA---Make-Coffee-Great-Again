@@ -1,0 +1,12 @@
+# 微信开发者工具私有配置（含 appid）
+project.private.config.json
+
+# 本地敏感配置（含云环境 ID）
+miniprogram/config.local.js
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/

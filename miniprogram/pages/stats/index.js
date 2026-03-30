@@ -14,7 +14,11 @@ Page({
   },
 
   onLoad() {
-    if (!app.ensureLogin()) return
+    if (!app.globalData.isLoggedIn) {
+      this.setData({ loading: false, loadError: true })
+      app.requireLogin()
+      return
+    }
     this.loadStats()
   },
 

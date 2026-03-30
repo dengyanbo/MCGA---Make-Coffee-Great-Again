@@ -10,6 +10,7 @@ Page({
     isEmpty: false,
     loadError: false,
     isInitialLoad: true,
+    isGuest: false,
     nickname: '',
   },
 
@@ -18,15 +19,21 @@ Page({
   _loading: false,
 
   onLoad() {
-    if (!app.ensureLogin()) return
     this.setData({ nickname: app.globalData.nickname || '' })
     this._needRefresh = false
-    this._resetAndLoad()
+    if (app.globalData.isLoggedIn) {
+      this._resetAndLoad()
+    } else {
+      this.setData({ loading: false, isGuest: true })
+    }
   },
 
   onShow() {
     this.setData({ nickname: app.globalData.nickname || '' })
-    if (this._needRefresh) {
+    if (app.globalData.isLoggedIn && this.data.isGuest) {
+      this.setData({ isGuest: false })
+      this._resetAndLoad()
+    } else if (this._needRefresh) {
       this._needRefresh = false
       this._resetAndLoad()
     }
@@ -117,6 +124,14 @@ Page({
   },
 
   onGoStats() {
+    if (!app.globalData.isLoggedIn) {
+      app.requireLogin()
+      return
+    }
     wx.navigateTo({ url: '/pages/stats/index' })
+  },
+
+  onGoLogin() {
+    wx.navigateTo({ url: '/pages/login/index' })
   },
 })

@@ -10,13 +10,7 @@ Page({
   },
 
   onLoad(options) {
-    // Auto-redirect on app cold launch
-    if (app._autoRedirectHome) {
-      app._autoRedirectHome = false
-      wx.reLaunch({ url: '/pages/index/index' })
-      return
-    }
-    // Already logged in — show account management (user clicked built-in home button)
+    // Already logged in — show account management
     if (app.globalData.isLoggedIn) {
       this.setData({
         showLoggedInState: true,
@@ -24,6 +18,7 @@ Page({
       })
       return
     }
+    // Not logged in — show login form (default)
   },
 
   onNicknameInput(e) {
@@ -49,7 +44,17 @@ Page({
       })
     } catch (_) { /* ignore */ }
 
-    wx.reLaunch({ url: '/pages/index/index' })
+    this._navigateAfterLogin()
+  },
+
+  /** After login/continue, go back if navigated here, or go to home */
+  _navigateAfterLogin() {
+    const pages = getCurrentPages()
+    if (pages.length > 1) {
+      wx.navigateBack()
+    } else {
+      wx.reLaunch({ url: '/pages/index/index' })
+    }
   },
 
   onLogout() {
@@ -104,7 +109,7 @@ Page({
         } catch (_) { /* ignore */ }
       }
 
-      wx.reLaunch({ url: '/pages/index/index' })
+      this._navigateAfterLogin()
     } catch (err) {
       console.error('Login failed:', err)
       wx.showToast({

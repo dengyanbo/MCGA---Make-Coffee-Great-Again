@@ -81,7 +81,6 @@ Page({
   },
 
   onLoad(options) {
-    if (!app.ensureLogin()) return
     // Pre-generate ranges
     this._ranges = {}
     PARAM_FIELDS.forEach(f => {
@@ -89,6 +88,12 @@ Page({
     })
 
     if (options.id) {
+      // Editing requires login
+      if (!app.globalData.isLoggedIn) {
+        app.requireLogin()
+        setTimeout(() => wx.navigateBack(), 100)
+        return
+      }
       this.setData({ isEdit: true, editId: options.id })
       wx.setNavigationBarTitle({ title: '编辑记录' })
       this.loadLog(options.id)
@@ -231,6 +236,10 @@ Page({
   // --- Submit ---
   async onSubmit() {
     if (!this.validate() || this.data.submitting) return
+    if (!app.globalData.isLoggedIn) {
+      app.requireLogin()
+      return
+    }
     if (!(await app.checkConnectivity())) return
     this.setData({ submitting: true })
 

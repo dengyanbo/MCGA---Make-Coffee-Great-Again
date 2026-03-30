@@ -12,63 +12,77 @@
     </view>
   </view>
 
-  <!-- Log List -->
-  <view wx:if="{{!isEmpty}}" class="log-list">
-    <view class="log-card" wx:for="{{logs}}" wx:key="_id"
-      data-id="{{item._id}}" bindtap="onTapLog">
-      <view class="log-card-top">
-        <view class="log-card-info">
-          <text class="bean-name">{{item.beanName}}</text>
-          <view class="tags">
-            <text class="tag tag-method">{{f.getBrewMethod(item.brewMethod)}}</text>
-            <text wx:if="{{item.roastLevel}}" class="tag tag-roast">{{f.getRoast(item.roastLevel)}}</text>
+  <!-- Guest State (not logged in) -->
+  <view wx:if="{{isGuest}}" class="empty-state">
+    <text class="empty-icon">☕</text>
+    <text class="empty-title">欢迎使用 MCGA Coffee</text>
+    <text class="empty-desc">点击 + 按钮开始记录你的咖啡</text>
+    <text class="empty-desc">登录后可保存记录并查看历史数据</text>
+    <view class="guest-login-btn" bindtap="onGoLogin">
+      <text>登录账号</text>
+    </view>
+  </view>
+
+  <!-- Logged-in content -->
+  <block wx:else>
+    <!-- Log List -->
+    <view wx:if="{{!isEmpty}}" class="log-list">
+      <view class="log-card" wx:for="{{logs}}" wx:key="_id"
+        data-id="{{item._id}}" bindtap="onTapLog">
+        <view class="log-card-top">
+          <view class="log-card-info">
+            <text class="bean-name">{{item.beanName}}</text>
+            <view class="tags">
+              <text class="tag tag-method">{{f.getBrewMethod(item.brewMethod)}}</text>
+              <text wx:if="{{item.roastLevel}}" class="tag tag-roast">{{f.getRoast(item.roastLevel)}}</text>
+            </view>
+          </view>
+          <view class="log-card-score">
+            <text class="score-value">{{item.overall || '-'}}</text>
+            <text class="score-label">综合</text>
           </view>
         </view>
-        <view class="log-card-score">
-          <text class="score-value">{{item.overall || '-'}}</text>
-          <text class="score-label">综合</text>
+        <view class="log-card-bottom">
+          <text class="log-params">{{item.coffeeDose}}g · {{item.waterAmount}}ml · {{f.formatTime(item.brewTime)}}</text>
+          <text class="log-date">{{f.formatDate(item.createdAt)}}</text>
         </view>
       </view>
-      <view class="log-card-bottom">
-        <text class="log-params">{{item.coffeeDose}}g · {{item.waterAmount}}ml · {{f.formatTime(item.brewTime)}}</text>
-        <text class="log-date">{{f.formatDate(item.createdAt)}}</text>
+    </view>
+
+    <!-- Error State -->
+    <view wx:if="{{loadError && !loading}}" class="empty-state">
+      <text class="empty-icon">⚠️</text>
+      <text class="empty-title">加载失败</text>
+      <text class="empty-desc">无法连接服务器，请检查网络后重试</text>
+      <view class="retry-btn" bindtap="onRetry">
+        <text>🔄 重新加载</text>
       </view>
     </view>
-  </view>
 
-  <!-- Error State -->
-  <view wx:if="{{loadError && !loading}}" class="empty-state">
-    <text class="empty-icon">⚠️</text>
-    <text class="empty-title">加载失败</text>
-    <text class="empty-desc">无法连接服务器，请检查网络后重试</text>
-    <view class="retry-btn" bindtap="onRetry">
-      <text>🔄 重新加载</text>
+    <!-- Empty State -->
+    <view wx:elif="{{isEmpty && !loading}}" class="empty-state">
+      <text class="empty-icon">☕</text>
+      <text class="empty-title">还没有咖啡记录</text>
+      <text class="empty-desc">点击下方按钮，开始记录你的第一杯咖啡</text>
     </view>
-  </view>
 
-  <!-- Empty State -->
-  <view wx:elif="{{isEmpty && !loading}}" class="empty-state">
-    <text class="empty-icon">☕</text>
-    <text class="empty-title">还没有咖啡记录</text>
-    <text class="empty-desc">点击下方按钮，开始记录你的第一杯咖啡</text>
-  </view>
-
-  <!-- Loading -->
-  <view wx:if="{{loading}}" class="loading-wrap">
-    <text class="loading-text">加载中...</text>
-  </view>
-
-  <!-- Show More Button -->
-  <view wx:if="{{hasMore && !loading && logs.length > 0}}" class="show-more-wrap">
-    <view class="show-more-btn" bindtap="onShowMore">
-      <text>显示更多</text>
+    <!-- Loading -->
+    <view wx:if="{{loading}}" class="loading-wrap">
+      <text class="loading-text">加载中...</text>
     </view>
-  </view>
 
-  <!-- No more hint -->
-  <view wx:if="{{!hasMore && logs.length > 0}}" class="loading-wrap">
-    <text class="loading-text">没有更多了</text>
-  </view>
+    <!-- Show More Button -->
+    <view wx:if="{{hasMore && !loading && logs.length > 0}}" class="show-more-wrap">
+      <view class="show-more-btn" bindtap="onShowMore">
+        <text>显示更多</text>
+      </view>
+    </view>
+
+    <!-- No more hint -->
+    <view wx:if="{{!hasMore && logs.length > 0}}" class="loading-wrap">
+      <text class="loading-text">没有更多了</text>
+    </view>
+  </block>
 
   <!-- Floating Add Button -->
   <view class="fab" bindtap="onAddLog">

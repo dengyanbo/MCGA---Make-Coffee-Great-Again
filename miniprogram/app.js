@@ -17,11 +17,11 @@ App({
       this.globalData.cloudReady = false
     }
 
-    this._checkLoginState()
+    this._restoreLoginState()
   },
 
-  /** Check cached login state; redirect if valid, stay on login page if not */
-  _checkLoginState() {
+  /** Restore cached login state silently (no redirect) */
+  _restoreLoginState() {
     try {
       const state = wx.getStorageSync(LOGIN_KEY)
       if (state && state.loggedIn && state.loginTime) {
@@ -30,15 +30,8 @@ App({
           this.globalData.isLoggedIn = true
           this.globalData.userOpenid = state.openid || ''
           this.globalData.nickname = state.nickname || ''
-          // Already authenticated — jump to home if on login page
-          const pages = getCurrentPages()
-          if (!pages.length) {
-            // onLaunch fires before page onLoad; schedule redirect
-            this._autoRedirectHome = true
-          }
           return
         }
-        // Expired — clear
         wx.removeStorageSync(LOGIN_KEY)
       }
     } catch (_) { /* storage error, treat as not logged in */ }
@@ -48,20 +41,39 @@ App({
     this.globalData.nickname = ''
   },
 
-  /** Called by pages to enforce login. Returns true if logged in. */
-  ensureLogin() {
-    if (this.globalData.isLoggedIn) return true
-    wx.reLaunch({ url: '/pages/login/index' })
-    return false
+  /** Returns true if logged in (does NOT redirect) */
+  isLoggedIn() {
+    return this.globalData.isLoggedIn
   },
 
-  /** Clear login state and redirect to login page */
+  /** Show login prompt modal. Navigates to login page if user confirms. */
+  requireLogin() {
+    if (this.globalData.isLoggedIn) return Promise.resolve(true)
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '需要登录',
+        content: '登录后才能使用此功能，是否前往登录？',
+        confirmText: '去登录',
+        cancelText: '取消',
+        confirmColor: '#4A2C2A',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/login/index' })
+          }
+          resolve(false)
+        },
+        fail: () => resolve(false)
+      })
+    })
+  },
+
+  /** Clear login state and go to home page */
   logout() {
     try { wx.removeStorageSync(LOGIN_KEY) } catch (_) { /* ignore */ }
     this.globalData.isLoggedIn = false
     this.globalData.userOpenid = ''
     this.globalData.nickname = ''
-    wx.reLaunch({ url: '/pages/login/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   },
 
   onError(err) {

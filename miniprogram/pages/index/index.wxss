@@ -139,6 +139,21 @@
   opacity: 0.7;
 }
 
+/* Guest Login Button */
+.guest-login-btn {
+  margin-top: 32rpx;
+  padding: 20rpx 64rpx;
+  background: linear-gradient(135deg, #6F4E37, #4A2C2A);
+  border-radius: 40rpx;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.guest-login-btn:active {
+  opacity: 0.85;
+}
+
 /* Floating Add Button */
 .fab {
   position: fixed;

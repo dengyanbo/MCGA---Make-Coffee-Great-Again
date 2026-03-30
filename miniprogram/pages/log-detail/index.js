@@ -10,7 +10,11 @@ Page({
   },
 
   onLoad(options) {
-    if (!app.ensureLogin()) return
+    if (!app.globalData.isLoggedIn) {
+      this.setData({ loading: false, loadError: true })
+      app.requireLogin()
+      return
+    }
     if (options.id) {
       this._logId = options.id
       this.loadLog(options.id)

@@ -25,6 +25,7 @@
 .hero-bean {
   font-size: 40rpx;
   font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Helvetica Neue', sans-serif;
   display: block;
   margin-bottom: 8rpx;
 }

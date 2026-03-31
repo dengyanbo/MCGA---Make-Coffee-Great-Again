@@ -26,6 +26,49 @@
       <text class="brew-title">冲煮参数</text>
     </view>
 
+    <!-- Bean name -->
+    <view wx:if="{{!showBeanInput}}" class="brew-param-card" bindtap="onTapBean">
+      <text class="brew-param-label">咖啡豆</text>
+      <view class="brew-param-right">
+        <text class="brew-param-value">{{beanName || '点击选择'}}</text>
+        <text class="brew-param-arrow">›</text>
+      </view>
+    </view>
+    <view wx:else class="brew-param-card">
+      <text class="brew-param-label">咖啡豆</text>
+      <view class="brew-param-input-right">
+        <view class="brew-inline-cancel" bindtap="onCancelBeanInput"><text>×</text></view>
+        <input class="brew-inline-input" placeholder="输入名称" value="{{beanInputValue}}" bindinput="onBeanInput" bindconfirm="onConfirmBean" focus="{{showBeanInput}}" />
+        <view class="brew-inline-confirm" bindtap="onConfirmBean"><text>✓</text></view>
+      </view>
+    </view>
+
+    <!-- Grinder model -->
+    <view wx:if="{{!showGrinderInput}}" class="brew-param-card" bindtap="onTapGrinder">
+      <text class="brew-param-label">磨豆机</text>
+      <view class="brew-param-right">
+        <text class="brew-param-value">{{grinderModel || '点击选择'}}</text>
+        <text class="brew-param-arrow">›</text>
+      </view>
+    </view>
+    <view wx:else class="brew-param-card">
+      <text class="brew-param-label">磨豆机</text>
+      <view class="brew-param-input-right">
+        <view class="brew-inline-cancel" bindtap="onCancelGrinderInput"><text>×</text></view>
+        <input class="brew-inline-input" placeholder="输入型号" value="{{grinderInputValue}}" bindinput="onGrinderInput" bindconfirm="onConfirmGrinder" focus="{{showGrinderInput}}" />
+        <view class="brew-inline-confirm" bindtap="onConfirmGrinder"><text>✓</text></view>
+      </view>
+    </view>
+
+    <!-- Grind size -->
+    <view class="brew-param-card" bindtap="onTapGrindSize">
+      <text class="brew-param-label">刻度</text>
+      <view class="brew-param-right">
+        <text class="brew-param-value">{{grindSize}}</text>
+        <text class="brew-param-arrow">›</text>
+      </view>
+    </view>
+
     <view class="brew-param-card" bindtap="onTapTemp">
       <text class="brew-param-label">水温</text>
       <view class="brew-param-right">
@@ -41,20 +84,19 @@
         <text class="brew-param-arrow">›</text>
       </view>
     </view>
-    <view wx:else class="brew-filter-input-card">
-      <text class="brew-param-label" style="margin-bottom: 12rpx; display: block;">输入滤杯型号</text>
-      <view class="brew-filter-input-row">
-        <input class="brew-filter-input" placeholder="如：Hario V60" value="{{filterCupInputValue}}" bindinput="onFilterCupInput" bindconfirm="onConfirmFilterCup" focus="{{showFilterCupInput}}" />
-        <view class="brew-filter-confirm" bindtap="onConfirmFilterCup"><text>确定</text></view>
-      </view>
-      <view wx:if="{{filterCupList.length > 0}}" class="brew-filter-cancel" bindtap="onCancelFilterCupInput">
-        <text>取消，从列表选择</text>
+    <view wx:else class="brew-param-card">
+      <text class="brew-param-label">滤杯</text>
+      <view class="brew-param-input-right">
+        <view class="brew-inline-cancel" bindtap="onCancelFilterCupInput"><text>×</text></view>
+        <input class="brew-inline-input" placeholder="输入型号" value="{{filterCupInputValue}}" bindinput="onFilterCupInput" bindconfirm="onConfirmFilterCup" focus="{{showFilterCupInput}}" />
+        <view class="brew-inline-confirm" bindtap="onConfirmFilterCup"><text>✓</text></view>
       </view>
     </view>
 
     <view class="brew-technique-section">
       <text class="brew-param-label" style="margin-bottom: 16rpx; display: block;">冲煮手法</text>
-      <view class="brew-technique-seg">
+      <view class="brew-technique-seg" bindtouchstart="onTechTouchStart" bindtouchend="onTechTouchEnd">
+        <view class="brew-tech-slider" style="transform: translateX({{brewTechnique === 'sanduanshi' ? '100%' : '0'}});"></view>
         <view class="brew-tech-option {{brewTechnique === 'yidaoliu' ? 'active' : ''}}"
           data-technique="yidaoliu" bindtap="onSelectTechnique">
           <text>一刀流</text>
@@ -66,6 +108,26 @@
       </view>
     </view>
 
+    <!-- Recipe selection (inside scrollable area, right below technique) -->
+    <view wx:if="{{recipeNames.length > 0}}" class="brew-recipe-section">
+      <text class="brew-param-label brew-recipe-label">选择方案</text>
+      <scroll-view scroll-x class="brew-recipe-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="brew-recipe-list">
+          <view class="brew-recipe-chip {{selectedRecipe === item ? 'selected' : ''}}"
+            wx:for="{{recipeNames}}" wx:key="*this"
+            data-name="{{item}}" bindtap="onSelectRecipe">
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+    <view wx:elif="{{loadingRecipes}}" class="brew-recipe-section">
+      <text class="brew-recipe-loading">加载方案中...</text>
+    </view>
+  </view>
+
+  <!-- Fixed bottom: start button (State B only) -->
+  <view wx:if="{{state === 'B'}}" class="brew-bottom-section">
     <view class="brew-start-wrap">
       <view class="brew-start-btn" bindtap="onStartBrew">
         <text class="brew-start-text">开始冲煮</text>
@@ -195,9 +257,9 @@
     </view>
   </view>
 
-  <!-- Back button (visible in A, B, and D states; not during timer C) -->
+  <!-- Back button (visible in A, B states; not during timer C) -->
   <view wx:if="{{state === 'A' || state === 'B'}}" class="brew-back" bindtap="onGoBack">
-    <text class="brew-back-text">← 返回</text>
+    <text class="brew-back-text">‹</text>
   </view>
 </view>
 
@@ -213,6 +275,24 @@
       <picker-view-column>
         <view wx:for="{{tempValues}}" wx:key="*this" class="picker-item">
           {{item}} °C
+        </view>
+      </picker-view-column>
+    </picker-view>
+  </view>
+</view>
+
+<!-- Grind Size Picker -->
+<view wx:if="{{grindSizePickerVisible}}" class="picker-mask" bindtap="onGrindSizePickerCancel">
+  <view class="picker-sheet" catchtap="">
+    <view class="picker-header">
+      <text class="picker-cancel" bindtap="onGrindSizePickerCancel">取消</text>
+      <text class="picker-title">研磨刻度</text>
+      <text class="picker-confirm" bindtap="onGrindSizePickerConfirm">确定</text>
+    </view>
+    <picker-view value="{{grindSizePickerIndex}}" bindchange="onGrindSizePickerChange" class="picker-body" indicator-style="height: 80rpx;">
+      <picker-view-column>
+        <view wx:for="{{grindSizeValues}}" wx:key="*this" class="picker-item">
+          {{item}}
         </view>
       </picker-view-column>
     </picker-view>

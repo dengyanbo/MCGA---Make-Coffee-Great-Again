@@ -26,8 +26,23 @@ Page({
     filterCupList: [],
     showFilterCupInput: false,
     filterCupInputValue: '',
+    grinderModel: '',
+    grinderList: [],
+    showGrinderInput: false,
+    grinderInputValue: '',
+    beanName: '',
+    beanList: [],
+    showBeanInput: false,
+    beanInputValue: '',
+    grindSize: 20,
+    grindSizeValues: [],
+    grindSizePickerVisible: false,
+    grindSizePickerIndex: [0],
     brewTechnique: 'yidaoliu',
     techniqueLabels: { yidaoliu: '一刀流', sanduanshi: '三段式' },
+    recipeNames: [],
+    selectedRecipe: '',
+    loadingRecipes: false,
 
     // State C timer
     timerRunning: false,
@@ -61,30 +76,83 @@ Page({
     for (let t = 80; t <= 100; t++) tempValues.push(t)
     const tempIdx = tempValues.indexOf(93)
 
+    const grindSizeValues = []
+    for (let g = 1; g <= 60; g++) grindSizeValues.push(g)
+
+    const lastParams = wx.getStorageSync('lastBrewParams') || {}
+    const defaultGrind = lastParams.grindSize || 20
+    const grindIdx = grindSizeValues.indexOf(defaultGrind)
+
     this.setData({
       tempValues,
       tempPickerIndex: [tempIdx >= 0 ? tempIdx : 13],
+      grindSizeValues,
+      grindSize: defaultGrind,
+      grindSizePickerIndex: [grindIdx >= 0 ? grindIdx : 19],
     })
 
+    // Load equipment (filter cups + grinders + beans)
     let filterCupList = app.globalData.filterCups || []
-    if (filterCupList.length === 0) {
+    let grinderList = app.globalData.grinders || []
+    let beanList = app.globalData.beans || []
+    if (filterCupList.length === 0 || grinderList.length === 0 || beanList.length === 0) {
       try {
         const { result } = await wx.cloud.callFunction({
           name: 'coffeeLogFunctions',
           data: { type: 'getEquipment' }
         })
         if (result && result.success && result.data) {
-          filterCupList = result.data.filterCups || []
-          app.globalData.filterCups = filterCupList
+          if (filterCupList.length === 0) {
+            filterCupList = result.data.filterCups || []
+            app.globalData.filterCups = filterCupList
+          }
+          if (grinderList.length === 0) {
+            grinderList = result.data.grinders || []
+            app.globalData.grinders = grinderList
+          }
+          if (beanList.length === 0) {
+            beanList = result.data.beans || []
+            app.globalData.beans = beanList
+          }
         }
       } catch (_) {}
     }
 
+    // Grinder default: last used > first in list > empty
+    const lastGrinder = lastParams.grinderModel || ''
+    let defaultGrinder = ''
+    if (lastGrinder && grinderList.includes(lastGrinder)) {
+      defaultGrinder = lastGrinder
+    } else if (grinderList.length > 0) {
+      defaultGrinder = grinderList[0]
+    }
+
+    // Bean default: last used > empty
+    const lastBean = lastParams.beanName || ''
+
+    // FilterCup default: last used > first in list > empty
+    const lastFilterCup = lastParams.filterCup || ''
+    let defaultFilterCup = ''
+    if (lastFilterCup && filterCupList.includes(lastFilterCup)) {
+      defaultFilterCup = lastFilterCup
+    } else if (filterCupList.length > 0) {
+      defaultFilterCup = filterCupList[0]
+    }
+
     this.setData({
       filterCupList,
-      filterCup: filterCupList.length > 0 ? filterCupList[0] : '',
+      filterCup: defaultFilterCup,
       showFilterCupInput: filterCupList.length === 0,
+      grinderList,
+      grinderModel: defaultGrinder,
+      showGrinderInput: grinderList.length === 0,
+      beanList,
+      beanName: lastBean,
+      showBeanInput: beanList.length === 0 && !lastBean,
     })
+
+    // Load recipe names for default technique
+    this._loadRecipeNames(this.data.brewTechnique)
 
     setTimeout(() => this.setData({ animateIn: true }), 100)
   },
@@ -108,7 +176,52 @@ Page({
 
   // State B
   onSelectTechnique(e) {
-    this.setData({ brewTechnique: e.currentTarget.dataset.technique })
+    const technique = e.currentTarget.dataset.technique
+    if (technique === this.data.brewTechnique) return
+    this.setData({ brewTechnique: technique, selectedRecipe: '', recipeNames: [] })
+    this._loadRecipeNames(technique)
+  },
+
+  async _loadRecipeNames(technique) {
+    this.setData({ loadingRecipes: true })
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'coffeeLogFunctions',
+        data: { type: 'getRecipeNames', technique }
+      })
+      if (result && result.success) {
+        const names = result.data || []
+        this.setData({
+          recipeNames: names,
+          selectedRecipe: names.length > 0 ? names[0] : '',
+          loadingRecipes: false,
+        })
+      } else {
+        this.setData({ recipeNames: [], selectedRecipe: '', loadingRecipes: false })
+      }
+    } catch (_) {
+      this.setData({ recipeNames: [], selectedRecipe: '', loadingRecipes: false })
+    }
+  },
+
+  onSelectRecipe(e) {
+    this.setData({ selectedRecipe: e.currentTarget.dataset.name })
+  },
+
+  // Technique swipe support
+  onTechTouchStart(e) {
+    this._techStartX = e.touches[0].clientX
+  },
+
+  onTechTouchEnd(e) {
+    const endX = e.changedTouches[0].clientX
+    const diff = endX - (this._techStartX || 0)
+    if (Math.abs(diff) < 30) return
+    const newTech = diff < 0 ? 'sanduanshi' : 'yidaoliu'
+    if (newTech !== this.data.brewTechnique) {
+      this.setData({ brewTechnique: newTech, selectedRecipe: '', recipeNames: [] })
+      this._loadRecipeNames(newTech)
+    }
   },
 
   onTapTemp() {
@@ -139,11 +252,13 @@ Page({
       this.setData({ showFilterCupInput: true })
       return
     }
-    const itemList = [...list, '+ 添加新滤杯']
+    const itemList = [...list, '+ 添加新滤杯', '⚙ 管理设备']
     wx.showActionSheet({
       itemList,
       success: (res) => {
-        if (res.tapIndex === list.length) {
+        if (res.tapIndex === list.length + 1) {
+          wx.navigateTo({ url: '/pages/equipment/index' })
+        } else if (res.tapIndex === list.length) {
           this.setData({ showFilterCupInput: true, filterCupInputValue: '' })
         } else {
           this.setData({ filterCup: list[res.tapIndex], showFilterCupInput: false })
@@ -168,8 +283,9 @@ Page({
       app.globalData.filterCups = list
       wx.cloud.callFunction({
         name: 'coffeeLogFunctions',
-        data: { type: 'saveEquipment', grinders: app.globalData.grinders || [], filterCups: list }
+        data: { type: 'saveEquipment', grinders: app.globalData.grinders || [], filterCups: list, beans: app.globalData.beans || [] }
       }).catch(() => {})
+      app.syncEquipmentToCache()
     }
     this.setData({
       filterCup: value,
@@ -183,13 +299,147 @@ Page({
     this.setData({ showFilterCupInput: false, filterCupInputValue: '' })
   },
 
+  // Grinder model
+  onTapGrinder() {
+    const list = this.data.grinderList
+    if (list.length === 0) {
+      this.setData({ showGrinderInput: true })
+      return
+    }
+    const itemList = [...list, '+ 添加新磨豆机', '⚙ 管理设备']
+    wx.showActionSheet({
+      itemList,
+      success: (res) => {
+        if (res.tapIndex === list.length + 1) {
+          wx.navigateTo({ url: '/pages/equipment/index' })
+        } else if (res.tapIndex === list.length) {
+          this.setData({ showGrinderInput: true, grinderInputValue: '' })
+        } else {
+          this.setData({ grinderModel: list[res.tapIndex], showGrinderInput: false })
+        }
+      }
+    })
+  },
+
+  onGrinderInput(e) {
+    this.setData({ grinderInputValue: e.detail.value })
+  },
+
+  onConfirmGrinder() {
+    const value = this.data.grinderInputValue.trim()
+    if (!value) {
+      wx.showToast({ title: '请输入磨豆机型号', icon: 'none' })
+      return
+    }
+    const list = [...this.data.grinderList]
+    if (!list.includes(value)) {
+      list.push(value)
+      app.globalData.grinders = list
+      wx.cloud.callFunction({
+        name: 'coffeeLogFunctions',
+        data: { type: 'saveEquipment', grinders: list, filterCups: app.globalData.filterCups || [], beans: app.globalData.beans || [] }
+      }).catch(() => {})
+      app.syncEquipmentToCache()
+    }
+    this.setData({
+      grinderModel: value,
+      grinderList: list,
+      showGrinderInput: false,
+      grinderInputValue: '',
+    })
+  },
+
+  onCancelGrinderInput() {
+    this.setData({ showGrinderInput: false, grinderInputValue: '' })
+  },
+
+  // Grind size picker
+  onTapGrindSize() {
+    const idx = this.data.grindSizeValues.indexOf(this.data.grindSize)
+    this.setData({
+      grindSizePickerVisible: true,
+      grindSizePickerIndex: [idx >= 0 ? idx : 19],
+    })
+  },
+
+  onGrindSizePickerChange(e) {
+    this.setData({ grindSizePickerIndex: e.detail.value })
+  },
+
+  onGrindSizePickerConfirm() {
+    const grindSize = this.data.grindSizeValues[this.data.grindSizePickerIndex[0]]
+    this.setData({ grindSize, grindSizePickerVisible: false })
+  },
+
+  onGrindSizePickerCancel() {
+    this.setData({ grindSizePickerVisible: false })
+  },
+
+  // Bean name
+  onTapBean() {
+    const list = this.data.beanList
+    if (list.length === 0) {
+      this.setData({ showBeanInput: true })
+      return
+    }
+    const itemList = [...list, '+ 添加新咖啡豆', '⚙ 管理设备']
+    wx.showActionSheet({
+      itemList,
+      success: (res) => {
+        if (res.tapIndex === list.length + 1) {
+          wx.navigateTo({ url: '/pages/equipment/index' })
+        } else if (res.tapIndex === list.length) {
+          this.setData({ showBeanInput: true, beanInputValue: '' })
+        } else {
+          this.setData({ beanName: list[res.tapIndex], showBeanInput: false })
+        }
+      }
+    })
+  },
+
+  onBeanInput(e) {
+    this.setData({ beanInputValue: e.detail.value })
+  },
+
+  onConfirmBean() {
+    const value = this.data.beanInputValue.trim()
+    if (!value) {
+      wx.showToast({ title: '请输入咖啡豆名称', icon: 'none' })
+      return
+    }
+    const list = [...this.data.beanList]
+    if (!list.includes(value)) {
+      list.push(value)
+      app.globalData.beans = list
+      wx.cloud.callFunction({
+        name: 'coffeeLogFunctions',
+        data: { type: 'saveEquipment', grinders: app.globalData.grinders || [], filterCups: app.globalData.filterCups || [], beans: list }
+      }).catch(() => {})
+      app.syncEquipmentToCache()
+    }
+    this.setData({
+      beanName: value,
+      beanList: list,
+      showBeanInput: false,
+      beanInputValue: '',
+    })
+  },
+
+  onCancelBeanInput() {
+    this.setData({ showBeanInput: false, beanInputValue: '' })
+  },
+
   // Start brew
   async onStartBrew() {
     wx.showLoading({ title: '加载配方...' })
     try {
+      const reqData = { type: 'getBrewRecipe', technique: this.data.brewTechnique }
+      if (this.data.selectedRecipe) {
+        reqData.recipeName = this.data.selectedRecipe
+      }
       const { result } = await wx.cloud.callFunction({
         name: 'coffeeLogFunctions',
-        data: { type: 'getBrewRecipe', technique: this.data.brewTechnique }
+        data: reqData,
       })
 
       if (!result || !result.success || !result.data) {
@@ -358,12 +608,24 @@ Page({
       brewMethod: 'pourover',
       brewTechnique: this.data.brewTechnique,
       filterCup: this.data.filterCup,
+      grinderModel: this.data.grinderModel,
+      grindSize: this.data.grindSize,
       waterTemp: this.data.waterTemp,
       taste: this.data.taste || '',
       badReasons,
-      beanName: '',
+      beanName: this.data.beanName || '',
       brewTime: this.data.totalTime,
     }
+
+    // Cache last used params
+    try {
+      wx.setStorageSync('lastBrewParams', {
+        grinderModel: this.data.grinderModel,
+        grindSize: this.data.grindSize,
+        beanName: this.data.beanName,
+        filterCup: this.data.filterCup,
+      })
+    } catch (_) {}
 
     try {
       const { result } = await wx.cloud.callFunction({

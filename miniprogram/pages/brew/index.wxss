@@ -1,8 +1,9 @@
 .brew-page {
-  min-height: 100vh;
+  height: 100vh;
   background: #F2F2F7;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .fade-in {
@@ -30,6 +31,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .brew-methods {
@@ -66,7 +69,7 @@
 }
 
 /* State B — Params */
-.brew-state-b { flex: 1; display: flex; flex-direction: column; }
+.brew-state-b { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .brew-param-card {
   display: flex; align-items: center; justify-content: space-between;
@@ -82,21 +85,45 @@
 
 .brew-technique-seg {
   display: flex; background: rgba(118,118,128,0.12); border-radius: 16rpx;
+  position: relative; overflow: hidden;
+}
+
+.brew-tech-slider {
+  position: absolute; top: 4rpx; bottom: 4rpx; left: 4rpx;
+  width: calc(50% - 4rpx); border-radius: 14rpx;
+  background: #FFFFFF;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  z-index: 0;
 }
 
 .brew-tech-option {
   flex: 1; display: flex; align-items: center; justify-content: center;
   padding: 24rpx 0; color: #8E8E93; font-size: 28rpx; font-weight: 500;
-  border-radius: 16rpx; transition: all 0.3s;
+  border-radius: 16rpx; transition: color 0.3s, font-weight 0.3s;
+  position: relative; z-index: 1;
 }
 
 .brew-tech-option.active {
-  background: #FFFFFF; color: #1C1C1E; font-weight: 600;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+  color: #1C1C1E; font-weight: 600;
+}
+
+/* Fixed bottom section (start button + recipe) */
+.brew-bottom-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #F2F2F7;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 10;
 }
 
 .brew-start-wrap {
-  flex: 1; display: flex; align-items: center; justify-content: center; padding: 60rpx 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 40rpx 16rpx;
 }
 
 .brew-start-btn {
@@ -114,7 +141,7 @@
 /* State C — Timer */
 .brew-state-c {
   flex: 1; display: flex; flex-direction: column; justify-content: center;
-  padding: 80rpx 40rpx 200rpx;
+  padding: 0 40rpx 200rpx; overflow: hidden;
 }
 
 .brew-timer-wrap { display: flex; flex-direction: column; align-items: center; }
@@ -210,7 +237,7 @@
 /* Timer done */
 .brew-done-wrap {
   flex: 1; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; min-height: 60vh;
+  justify-content: center; overflow: hidden;
 }
 
 .brew-done-emoji { font-size: 120rpx; margin-bottom: 32rpx; }
@@ -225,7 +252,8 @@
 /* State D — Feedback */
 .brew-state-d {
   flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 120rpx 40rpx 200rpx;
+  justify-content: center;
+  padding: 0 40rpx 200rpx; overflow: hidden;
 }
 
 .brew-feedback-title {
@@ -343,30 +371,54 @@
 
 /* Back button */
 .brew-back { position: fixed; top: 100rpx; left: 32rpx; z-index: 10; }
-.brew-back-text { font-size: 30rpx; color: #3A3A3C; font-weight: 500; }
+.brew-back-text { font-size: 48rpx; color: #8E8E93; font-weight: 300; line-height: 1; }
 .brew-back:active { opacity: 0.6; }
 
-/* Filter cup input */
-.brew-filter-input-card {
-  background: #FFFFFF; margin: 0 40rpx 16rpx; padding: 28rpx 32rpx; border-radius: 16rpx;
+/* Inline input (same height as param cards) */
+.brew-param-input-right {
+  flex: 1; display: flex; align-items: center; gap: 8rpx; margin-left: 16rpx;
+}
+.brew-inline-input {
+  flex: 1; height: 56rpx; border: 0.5rpx solid #D1D1D6; border-radius: 10rpx;
+  padding: 0 16rpx; font-size: 26rpx; color: #1C1C1E; background: #FAFAFA; box-sizing: border-box;
+}
+.brew-inline-confirm {
+  width: 56rpx; height: 56rpx; display: flex; align-items: center; justify-content: center;
+  background: #1C1C1E; border-radius: 10rpx; color: #FFFFFF; font-size: 28rpx; font-weight: 600; flex-shrink: 0;
+}
+.brew-inline-confirm:active { opacity: 0.85; }
+
+.brew-inline-cancel {
+  width: 56rpx; height: 56rpx; display: flex; align-items: center; justify-content: center;
+  background: #E5E5EA; border-radius: 10rpx; color: #8E8E93; font-size: 28rpx; font-weight: 600; flex-shrink: 0;
+}
+.brew-inline-cancel:active { opacity: 0.7; }
+
+/* Recipe selection */
+.brew-recipe-section { padding: 0 40rpx; }
+
+.brew-recipe-label { margin-bottom: 12rpx; display: block; }
+
+.brew-recipe-scroll { white-space: nowrap; width: 100%; }
+
+.brew-recipe-list { display: inline-flex; gap: 12rpx; }
+
+.brew-recipe-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 18rpx 32rpx; background: #FFFFFF; border-radius: 32rpx;
+  font-size: 28rpx; color: #3A3A3C; border: 1rpx solid #E5E5EA; transition: all 0.2s;
+  flex-shrink: 0;
 }
 
-.brew-filter-input-row { display: flex; gap: 12rpx; }
-
-.brew-filter-input {
-  flex: 1; height: 76rpx; border: 0.5rpx solid #D1D1D6; border-radius: 12rpx;
-  padding: 0 24rpx; font-size: 28rpx; color: #1C1C1E; background: #FAFAFA; box-sizing: border-box;
+.brew-recipe-chip.selected {
+  background: #1C1C1E; color: #FFFFFF; border-color: #1C1C1E; font-weight: 600;
 }
 
-.brew-filter-confirm {
-  height: 76rpx; padding: 0 28rpx; display: flex; align-items: center; justify-content: center;
-  background: #1C1C1E; border-radius: 12rpx; color: #FFFFFF; font-size: 28rpx; font-weight: 600;
-}
+.brew-recipe-chip:active { opacity: 0.7; }
 
-.brew-filter-confirm:active { opacity: 0.85; }
-.brew-filter-cancel { margin-top: 16rpx; text-align: center; }
-.brew-filter-cancel text { font-size: 24rpx; color: #8E8E93; }
-.brew-filter-cancel:active { opacity: 0.6; }
+.brew-recipe-loading {
+  font-size: 24rpx; color: #8E8E93; padding: 16rpx 40rpx;
+}
 
 /* Picker (shared) */
 .picker-mask {

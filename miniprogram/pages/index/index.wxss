@@ -1,5 +1,38 @@
 .page-home {
   padding-bottom: 120rpx;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Custom Nav Bar */
+.custom-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #F2F2F7;
+}
+
+.custom-nav-inner {
+  display: flex;
+  align-items: center;
+  padding-left: 16rpx;
+}
+
+.home-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.home-btn:active {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.home-btn-icon {
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .header {
@@ -9,11 +42,20 @@
   padding: 32rpx 32rpx 24rpx;
 }
 
+.header-left {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .header-title {
   font-size: 44rpx;
   font-weight: 700;
   color: #1C1C1E;
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-subtitle {
@@ -26,11 +68,20 @@
 .header-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
-.stats-btn {
-  font-size: 48rpx;
-  padding: 12rpx;
+.header-icon-btn {
+  padding: 8rpx;
+}
+
+.header-icon-btn:active {
+  opacity: 0.6;
+}
+
+.header-icon {
+  width: 44rpx;
+  height: 44rpx;
 }
 
 /* Stats Summary Card */
@@ -75,6 +126,8 @@
   margin-top: 20rpx;
   padding-top: 20rpx;
   border-top: 0.5rpx solid rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+  overflow: hidden;
 }
 
 .stats-bad-label {
@@ -83,13 +136,13 @@
 }
 
 /* Filter Tabs */
-.filter-tabs-scroll {
-  white-space: nowrap;
+.filter-tabs-wrap {
   margin: 0 32rpx 16rpx;
+  overflow: hidden;
 }
 
 .filter-tabs {
-  display: inline-flex;
+  display: flex;
   gap: 12rpx;
 }
 
@@ -202,11 +255,18 @@
 .log-params {
   font-size: 24rpx;
   color: #8E8E93;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .log-date {
   font-size: 22rpx;
   color: #AEAEB2;
+  flex-shrink: 0;
+  margin-left: 16rpx;
 }
 
 /* Show More */

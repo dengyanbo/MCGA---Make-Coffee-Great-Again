@@ -6,7 +6,8 @@
     "pages/log-detail/index",
     "pages/stats/index",
     "pages/onboarding/index",
-    "pages/brew/index"
+    "pages/brew/index",
+    "pages/equipment/index"
   ],
   "window": {
     "backgroundColor": "#F2F2F7",

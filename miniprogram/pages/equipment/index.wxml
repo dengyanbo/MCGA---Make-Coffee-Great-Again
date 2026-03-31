@@ -1,0 +1,78 @@
+<view class="page-equipment">
+  <view wx:if="{{loading}}" class="loading-wrap" style="padding-top: 200rpx;">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <block wx:else>
+    <!-- Beans -->
+    <view class="card">
+      <view class="section-title">
+        <text class="icon">☕</text>
+        <text>咖啡豆</text>
+      </view>
+      <view class="equip-list">
+        <view class="equip-item" wx:for="{{beans}}" wx:key="*this">
+          <text class="equip-name">{{item}}</text>
+          <view class="equip-delete" data-idx="{{index}}" bindtap="onDeleteBean">
+            <text>×</text>
+          </view>
+        </view>
+        <view wx:if="{{beans.length === 0}}" class="equip-empty">
+          <text>暂无咖啡豆</text>
+        </view>
+      </view>
+      <view class="equip-add-row">
+        <input class="equip-add-input" placeholder="添加咖啡豆" value="{{newBean}}" bindinput="onNewBeanInput" bindconfirm="onAddBean" />
+        <view class="equip-add-btn" bindtap="onAddBean"><text>+</text></view>
+      </view>
+    </view>
+
+    <!-- Grinders -->
+    <view class="card">
+      <view class="section-title">
+        <text class="icon">⚙️</text>
+        <text>磨豆机</text>
+      </view>
+      <view class="equip-list">
+        <view class="equip-item" wx:for="{{grinders}}" wx:key="*this">
+          <text class="equip-name">{{item}}</text>
+          <view class="equip-delete" data-idx="{{index}}" bindtap="onDeleteGrinder">
+            <text>×</text>
+          </view>
+        </view>
+        <view wx:if="{{grinders.length === 0}}" class="equip-empty">
+          <text>暂无磨豆机</text>
+        </view>
+      </view>
+      <view class="equip-add-row">
+        <input class="equip-add-input" placeholder="添加磨豆机" value="{{newGrinder}}" bindinput="onNewGrinderInput" bindconfirm="onAddGrinder" />
+        <view class="equip-add-btn" bindtap="onAddGrinder"><text>+</text></view>
+      </view>
+    </view>
+
+    <!-- Filter Cups -->
+    <view class="card">
+      <view class="section-title">
+        <text class="icon">🫗</text>
+        <text>滤杯</text>
+      </view>
+      <view class="equip-list">
+        <view class="equip-item" wx:for="{{filterCups}}" wx:key="*this">
+          <text class="equip-name">{{item}}</text>
+          <view class="equip-delete" data-idx="{{index}}" bindtap="onDeleteFilterCup">
+            <text>×</text>
+          </view>
+        </view>
+        <view wx:if="{{filterCups.length === 0}}" class="equip-empty">
+          <text>暂无滤杯</text>
+        </view>
+      </view>
+      <view class="equip-add-row">
+        <input class="equip-add-input" placeholder="添加滤杯" value="{{newFilterCup}}" bindinput="onNewFilterCupInput" bindconfirm="onAddFilterCup" />
+        <view class="equip-add-btn" bindtap="onAddFilterCup"><text>+</text></view>
+      </view>
+    </view>
+  </block>
+
+  <view class="safe-bottom"></view>
+</view>

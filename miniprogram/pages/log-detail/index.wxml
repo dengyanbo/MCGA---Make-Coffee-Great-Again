@@ -19,7 +19,7 @@
   <view class="hero-card">
     <view class="hero-top">
       <view class="hero-info">
-        <text class="hero-bean">{{log.beanName}}</text>
+        <text class="hero-bean">{{log.beanName || '神秘咖啡'}}</text>
       </view>
       <view class="hero-score">
         <text wx:if="{{log.taste === 'good'}}" class="hero-taste-label hero-taste-good">好喝</text>

@@ -20,6 +20,7 @@ exports.main = async (event, context) => {
     case 'getEquipment':       return getEquipment(OPENID)
     case 'completeOnboarding': return completeOnboarding(OPENID)
     case 'getBrewRecipe':      return getBrewRecipe(event)
+    case 'getRecipeNames':     return getRecipeNames(event)
     case 'getFilteredLogs':    return getFilteredLogs(event, OPENID)
     default:                   return { success: false, error: 'Unknown type' }
   }
@@ -188,17 +189,17 @@ async function getStats(openid) {
 }
 
 async function saveEquipment(event, openid) {
-  const { grinders, filterCups } = event
+  const { grinders, filterCups, beans } = event
   try {
     const users = db.collection('users')
     const { data } = await users.where({ _openid: openid }).limit(1).get()
     if (data.length > 0) {
-      await users.doc(data[0]._id).update({
-        data: {
-          grinders: grinders || [],
-          filterCups: filterCups || [],
-        }
-      })
+      const update = {
+        grinders: grinders || [],
+        filterCups: filterCups || [],
+      }
+      if (beans !== undefined) update.beans = beans
+      await users.doc(data[0]._id).update({ data: update })
     }
     return { success: true }
   } catch (err) {
@@ -215,10 +216,11 @@ async function getEquipment(openid) {
         data: {
           grinders: data[0].grinders || [],
           filterCups: data[0].filterCups || [],
+          beans: data[0].beans || [],
         }
       }
     }
-    return { success: true, data: { grinders: [], filterCups: [] } }
+    return { success: true, data: { grinders: [], filterCups: [], beans: [] } }
   } catch (err) {
     return { success: false, error: err.message }
   }
@@ -238,10 +240,13 @@ async function completeOnboarding(openid) {
 }
 
 async function getBrewRecipe(event) {
-  const { technique } = event
+  const { technique, recipeName } = event
   try {
+    const query = {}
+    if (technique) query.technique = technique
+    if (recipeName) query.name = recipeName
     const { data } = await db.collection('brew_recipes')
-      .where({ technique })
+      .where(query)
       .limit(1)
       .get()
     if (data.length === 0) {
@@ -250,6 +255,21 @@ async function getBrewRecipe(event) {
     return { success: true, data: data[0] }
   } catch (err) {
     return { success: false, error: err.message }
+  }
+}
+
+async function getRecipeNames(event) {
+  const { technique } = event
+  try {
+    const { data } = await db.collection('brew_recipes')
+      .where({ technique })
+      .field({ name: true })
+      .limit(50)
+      .get()
+    const names = data.map(d => d.name).filter(Boolean)
+    return { success: true, data: names }
+  } catch (err) {
+    return { success: false, data: [], error: err.message }
   }
 }
 

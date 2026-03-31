@@ -33,6 +33,7 @@ App({
           this.globalData.onboardingDone = state.onboardingDone || false
           this.globalData.grinders = state.grinders || []
           this.globalData.filterCups = state.filterCups || []
+          this.globalData.beans = state.beans || []
           return
         }
         wx.removeStorageSync(LOGIN_KEY)
@@ -79,6 +80,19 @@ App({
     wx.reLaunch({ url: '/pages/index/index' })
   },
 
+  /** Sync equipment lists to loginState cache */
+  syncEquipmentToCache() {
+    try {
+      const state = wx.getStorageSync(LOGIN_KEY)
+      if (state) {
+        state.grinders = this.globalData.grinders || []
+        state.filterCups = this.globalData.filterCups || []
+        state.beans = this.globalData.beans || []
+        wx.setStorageSync(LOGIN_KEY, state)
+      }
+    } catch (_) { /* ignore */ }
+  },
+
   onError(err) {
     console.error('App onError:', err)
   },
@@ -95,6 +109,7 @@ App({
     onboardingDone: false,
     grinders: [],
     filterCups: [],
+    beans: [],
   },
 
   /** Check cloud + network, show toast on failure. Returns true if OK. */

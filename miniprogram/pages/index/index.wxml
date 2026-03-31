@@ -1,14 +1,28 @@
 <wxs src="../../utils/filters.wxs" module="f" />
 
 <view class="page-home">
+  <!-- Custom Nav Bar (aligned with capsule button) -->
+  <view class="custom-nav" style="padding-top: {{navBarTop}}px;">
+    <view class="custom-nav-inner" style="height: {{navBarHeight}}px;">
+      <view class="home-btn" bindtap="onGoAccount" style="width: {{navBarHeight}}px; height: {{navBarHeight}}px; border-radius: {{navBarHeight / 2}}px;">
+        <image class="home-btn-icon" src="/images/icon_home.svg" mode="aspectFit" />
+      </view>
+    </view>
+  </view>
+
   <!-- Header -->
   <view class="header">
     <view class="header-left">
       <text class="header-title">☕ {{nickname ? nickname + '的咖啡' : 'MCGA Coffee'}}</text>
       <text class="header-subtitle">记录每一杯的美好</text>
     </view>
-    <view class="header-right" bindtap="onGoStats">
-      <text class="stats-btn">📊</text>
+    <view class="header-right">
+      <view class="header-icon-btn" bindtap="onGoEquipment">
+        <image class="header-icon" src="/images/icon_gear.svg" mode="aspectFit" />
+      </view>
+      <view class="header-icon-btn" bindtap="onGoStats">
+        <image class="header-icon" src="/images/icon_stats.svg" mode="aspectFit" />
+      </view>
     </view>
   </view>
 
@@ -43,7 +57,7 @@
     </view>
 
     <!-- Filter Tabs -->
-    <scroll-view scroll-x class="filter-tabs-scroll">
+    <view class="filter-tabs-wrap">
       <view class="filter-tabs">
         <view class="filter-tab {{activeFilter === item.key ? 'active' : ''}}"
           wx:for="{{filterTabs}}" wx:key="key"
@@ -51,7 +65,7 @@
           <text>{{item.label}}</text>
         </view>
       </view>
-    </scroll-view>
+    </view>
 
     <!-- Log List -->
     <view wx:if="{{!isEmpty}}" class="log-list">
@@ -59,11 +73,9 @@
         data-id="{{item._id}}" bindtap="onTapLog">
         <view class="log-card-top">
           <view class="log-card-info">
-            <text class="bean-name">{{item.beanName || '冲煮记录'}}</text>
+            <text class="bean-name">{{item.beanName || f.getBrewTitle(item)}}</text>
             <view class="tags">
-              <text class="tag tag-method">{{f.getBrewMethod(item.brewMethod)}}</text>
-              <text wx:if="{{item.roastLevel}}" class="tag tag-roast">{{f.getRoast(item.roastLevel)}}</text>
-              <text wx:if="{{item.brewTechnique}}" class="tag tag-method">{{f.getBrewTechnique(item.brewTechnique)}}</text>
+              <text wx:if="{{item.taste === 'good'}}" class="tag tag-method">完美</text>
               <text wx:if="{{item.taste === 'bad' && item.badReasons}}" class="tag tag-reason" wx:for="{{item.badReasons}}" wx:for-item="reason" wx:key="*this">{{f.getBadReason(reason)}}</text>
             </view>
           </view>

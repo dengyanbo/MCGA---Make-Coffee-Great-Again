@@ -83,12 +83,22 @@ function formatRatio(dose, water) {
   return '1:' + r.toFixed(1)
 }
 
+function getBrewTitle(item) {
+  if (!item) return '冲煮记录'
+  var parts = []
+  if (item.brewMethod) parts.push(methods[item.brewMethod] || item.brewMethod)
+  if (item.brewTechnique) parts.push(techniques[item.brewTechnique] || item.brewTechnique)
+  if (item.filterCup) parts.push(item.filterCup)
+  return parts.length > 0 ? parts.join(' ') : '冲煮记录'
+}
+
 module.exports = {
   getBrewMethod: getBrewMethod,
   getRoast: getRoast,
   getTaste: getTaste,
   getBadReason: getBadReason,
   getBrewTechnique: getBrewTechnique,
+  getBrewTitle: getBrewTitle,
   formatDate: formatDate,
   formatFullDate: formatFullDate,
   formatTime: formatTime,

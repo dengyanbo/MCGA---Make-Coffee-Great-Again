@@ -15,16 +15,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.brew-header {
-  padding: 120rpx 40rpx 40rpx;
-  text-align: center;
-}
-
-.brew-title {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #1C1C1E;
-}
+/* brew-header removed: title now lives in custom nav bar */
 
 /* State A — Method selection */
 .brew-state-a {
@@ -69,7 +60,7 @@
 }
 
 /* State B — Params */
-.brew-state-b { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.brew-state-b { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-top: 24rpx; }
 
 .brew-param-card {
   display: flex; align-items: center; justify-content: space-between;
@@ -397,10 +388,45 @@
   font-weight: 600;
 }
 
-/* Back button */
-.brew-back { position: fixed; top: 100rpx; left: 32rpx; z-index: 10; }
-.brew-back-text { font-size: 48rpx; color: #8E8E93; font-weight: 300; line-height: 1; }
-.brew-back:active { opacity: 0.6; }
+/* Custom Navigation Bar (mimics default WeChat nav bar) */
+.brew-custom-nav {
+  background: #F2F2F7;
+}
+
+.brew-nav-inner {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.brew-nav-back {
+  display: flex;
+  align-items: center;
+  padding-left: 16rpx;
+  padding-right: 40rpx;
+  z-index: 1;
+}
+
+.brew-nav-back:active { opacity: 0.5; }
+
+.brew-nav-arrow {
+  width: 18rpx;
+  height: 18rpx;
+  border-left: 4rpx solid #000;
+  border-top: 4rpx solid #000;
+  transform: rotate(-45deg);
+}
+
+.brew-nav-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #000;
+  pointer-events: none;
+}
 
 /* Inline input (same height as param cards) */
 .brew-param-input-right {

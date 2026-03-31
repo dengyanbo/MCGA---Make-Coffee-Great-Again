@@ -72,6 +72,8 @@ Page({
 
     animateIn: false,
     capsuleBottom: 0,
+    navBarTop: 0,
+    navBarHeight: 0,
   },
 
   async onLoad() {
@@ -92,6 +94,8 @@ Page({
 
     this.setData({
       capsuleBottom,
+      navBarTop: menuBtn.top,
+      navBarHeight: menuBtn.height,
       tempValues,
       tempPickerIndex: [tempIdx >= 0 ? tempIdx : 13],
       grindSizeValues,

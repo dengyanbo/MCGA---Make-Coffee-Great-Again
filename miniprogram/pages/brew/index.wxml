@@ -1,11 +1,18 @@
 <wxs src="../../utils/filters.wxs" module="f" />
 
 <view class="brew-page">
+  <!-- Custom Navigation Bar (mimics default WeChat nav, for states A/B) -->
+  <view wx:if="{{state === 'A' || state === 'B'}}" class="brew-custom-nav" style="padding-top: {{navBarTop}}px;">
+    <view class="brew-nav-inner" style="height: {{navBarHeight}}px;">
+      <view class="brew-nav-back" bindtap="onGoBack" style="height: {{navBarHeight}}px;">
+        <view class="brew-nav-arrow"></view>
+      </view>
+      <text class="brew-nav-title">{{state === 'A' ? '选择冲煮方式' : '冲煮参数'}}</text>
+    </view>
+  </view>
+
   <!-- State A: Choose method -->
   <view wx:if="{{state === 'A'}}" class="brew-state-a {{animateIn ? 'fade-in' : ''}}">
-    <view class="brew-header">
-      <text class="brew-title">选择冲煮方式</text>
-    </view>
     <view class="brew-methods">
       <view class="brew-method-card" bindtap="onChoosePourover">
         <text class="brew-method-icon">☕</text>
@@ -22,10 +29,6 @@
 
   <!-- State B: Set params -->
   <view wx:elif="{{state === 'B'}}" class="brew-state-b {{animateIn ? 'fade-in' : ''}}">
-    <view class="brew-header">
-      <text class="brew-title">冲煮参数</text>
-    </view>
-
     <!-- Bean name -->
     <view wx:if="{{!showBeanInput}}" class="brew-param-card" bindtap="onTapBean">
       <text class="brew-param-label">咖啡豆</text>
@@ -269,10 +272,7 @@
     </view>
   </view>
 
-  <!-- Back button (visible in A, B states; not during timer C) -->
-  <view wx:if="{{state === 'A' || state === 'B'}}" class="brew-back" bindtap="onGoBack">
-    <text class="brew-back-text">‹</text>
-  </view>
+
 </view>
 
 <!-- Temp Picker -->

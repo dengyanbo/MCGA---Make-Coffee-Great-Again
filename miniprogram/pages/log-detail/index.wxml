@@ -22,8 +22,12 @@
         <text class="hero-bean">{{log.beanName}}</text>
       </view>
       <view class="hero-score">
-        <text class="hero-score-value">{{log.overall || '-'}}</text>
-        <text class="hero-score-max">/5</text>
+        <text wx:if="{{log.taste === 'good'}}" class="hero-taste-label hero-taste-good">好喝</text>
+        <text wx:elif="{{log.taste === 'bad'}}" class="hero-taste-label hero-taste-bad">难喝</text>
+        <block wx:elif="{{log.overall}}">
+          <text class="hero-score-value">{{log.overall}}</text>
+          <text class="hero-score-max">/5</text>
+        </block>
       </view>
     </view>
     <view class="hero-tags">
@@ -106,16 +110,19 @@
       <text class="icon">☕</text>
       <text>味道评价</text>
     </view>
-    <!-- New taste tag -->
     <view wx:if="{{log.taste}}" class="taste-display">
       <text class="taste-emoji">{{log.taste === 'good' ? '👍' : '👎'}}</text>
       <text class="taste-text">{{log.taste === 'good' ? '好喝' : '难喝'}}</text>
     </view>
-    <!-- Bad reasons -->
+    <!-- Bad reasons as tags -->
     <view wx:if="{{log.taste === 'bad' && log.badReasons && log.badReasons.length > 0}}" class="bad-reasons-display">
       <view class="bad-reason-tag" wx:for="{{log.badReasons}}" wx:key="*this">
         <text>{{f.getBadReason(item)}}</text>
       </view>
+    </view>
+    <!-- Motivational quote -->
+    <view wx:if="{{log.taste}}" class="detail-quote">
+      <text class="detail-quote-text">{{tasteQuote}}</text>
     </view>
     <!-- Backward compat: old overall score -->
     <view wx:if="{{!log.taste && log.overall}}" class="overall-row">

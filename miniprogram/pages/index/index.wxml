@@ -64,11 +64,12 @@
               <text class="tag tag-method">{{f.getBrewMethod(item.brewMethod)}}</text>
               <text wx:if="{{item.roastLevel}}" class="tag tag-roast">{{f.getRoast(item.roastLevel)}}</text>
               <text wx:if="{{item.brewTechnique}}" class="tag tag-method">{{f.getBrewTechnique(item.brewTechnique)}}</text>
+              <text wx:if="{{item.taste === 'bad' && item.badReasons}}" class="tag tag-reason" wx:for="{{item.badReasons}}" wx:for-item="reason" wx:key="*this">{{f.getBadReason(reason)}}</text>
             </view>
           </view>
           <view class="log-card-taste">
-            <text wx:if="{{item.taste === 'good'}}" class="taste-tag taste-good">👍</text>
-            <text wx:elif="{{item.taste === 'bad'}}" class="taste-tag taste-bad">👎</text>
+            <text wx:if="{{item.taste === 'good'}}" class="taste-label taste-label-good">好喝</text>
+            <text wx:elif="{{item.taste === 'bad'}}" class="taste-label taste-label-bad">难喝</text>
             <text wx:elif="{{item.overall}}" class="score-value-old">{{item.overall}}</text>
           </view>
         </view>

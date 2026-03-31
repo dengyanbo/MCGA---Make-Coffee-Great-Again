@@ -26,7 +26,6 @@
       <text class="brew-title">冲煮参数</text>
     </view>
 
-    <!-- Water temp -->
     <view class="brew-param-card" bindtap="onTapTemp">
       <text class="brew-param-label">水温</text>
       <view class="brew-param-right">
@@ -35,16 +34,24 @@
       </view>
     </view>
 
-    <!-- Filter cup -->
-    <view class="brew-param-card" bindtap="onTapFilterCup">
+    <view wx:if="{{!showFilterCupInput}}" class="brew-param-card" bindtap="onTapFilterCup">
       <text class="brew-param-label">滤杯</text>
       <view class="brew-param-right">
-        <text class="brew-param-value">{{filterCup || '未选择'}}</text>
+        <text class="brew-param-value">{{filterCup || '点击选择'}}</text>
         <text class="brew-param-arrow">›</text>
       </view>
     </view>
+    <view wx:else class="brew-filter-input-card">
+      <text class="brew-param-label" style="margin-bottom: 12rpx; display: block;">输入滤杯型号</text>
+      <view class="brew-filter-input-row">
+        <input class="brew-filter-input" placeholder="如：Hario V60" value="{{filterCupInputValue}}" bindinput="onFilterCupInput" bindconfirm="onConfirmFilterCup" focus="{{showFilterCupInput}}" />
+        <view class="brew-filter-confirm" bindtap="onConfirmFilterCup"><text>确定</text></view>
+      </view>
+      <view wx:if="{{filterCupList.length > 0}}" class="brew-filter-cancel" bindtap="onCancelFilterCupInput">
+        <text>取消，从列表选择</text>
+      </view>
+    </view>
 
-    <!-- Brew technique segmented -->
     <view class="brew-technique-section">
       <text class="brew-param-label" style="margin-bottom: 16rpx; display: block;">冲煮手法</text>
       <view class="brew-technique-seg">
@@ -59,7 +66,6 @@
       </view>
     </view>
 
-    <!-- Start button -->
     <view class="brew-start-wrap">
       <view class="brew-start-btn" bindtap="onStartBrew">
         <text class="brew-start-text">开始冲煮</text>
@@ -78,9 +84,8 @@
       </view>
     </view>
 
-    <!-- Timer running -->
+    <!-- Timer running / paused -->
     <view wx:else class="brew-timer-wrap">
-      <!-- Current step display -->
       <view class="brew-step-display" wx:if="{{currentStep}}">
         <text class="brew-step-action">{{currentStep.label}}</text>
         <text class="brew-step-desc">{{currentStep.description}}</text>
@@ -89,18 +94,24 @@
         </text>
       </view>
 
-      <!-- Timer display -->
+      <view wx:if="{{!currentStep && steps.length === 0}}" class="brew-step-display">
+        <text class="brew-step-action">冲煮中</text>
+        <text class="brew-step-desc">未加载到步骤数据</text>
+      </view>
+
+      <view wx:if="{{timerPaused}}" class="brew-paused-badge">
+        <text>已暂停</text>
+      </view>
+
       <view class="brew-timer-display">
         <text class="brew-timer-value">{{f.formatTime(elapsedTime)}}</text>
         <text class="brew-timer-total">/ {{f.formatTime(totalTime)}}</text>
       </view>
 
-      <!-- Progress bar -->
       <view class="brew-progress-wrap">
         <view class="brew-progress-bar">
           <view class="brew-progress-fill" style="width: {{totalTime > 0 ? (elapsedTime / totalTime * 100) : 0}}%"></view>
         </view>
-        <!-- Step markers -->
         <view class="brew-step-markers">
           <view class="brew-step-marker" wx:for="{{steps}}" wx:key="startTime"
             style="left: {{totalTime > 0 ? (item.startTime / totalTime * 100) : 0}}%"
@@ -109,52 +120,83 @@
         </view>
       </view>
 
-      <!-- Step info -->
       <view class="brew-steps-info">
         <text class="brew-step-counter">步骤 {{currentStepIndex + 1}} / {{steps.length}}</text>
+      </view>
+    </view>
+
+    <!-- Timer controls at bottom (text only, full width, no emoji) -->
+    <view wx:if="{{!timerDone}}" class="brew-bottom-controls">
+      <view wx:if="{{!timerPaused}}" class="brew-bottom-btn brew-bottom-pause" bindtap="onPauseTimer">
+        <text>暂停</text>
+      </view>
+      <view wx:else class="brew-bottom-btn brew-bottom-resume" bindtap="onResumeTimer">
+        <text>继续</text>
+      </view>
+      <view class="brew-bottom-btn brew-bottom-stop" bindtap="onStopTimer">
+        <text>终止</text>
       </view>
     </view>
   </view>
 
   <!-- State D: Feedback -->
   <view wx:elif="{{state === 'D'}}" class="brew-state-d {{animateIn ? 'fade-in' : ''}}">
-    <view wx:if="{{!showBadReasons}}" class="brew-feedback-main">
-      <text class="brew-feedback-title">这杯咖啡怎么样？</text>
-      <view class="brew-feedback-buttons">
-        <view class="brew-feedback-btn brew-feedback-good" bindtap="onTasteGood">
-          <text class="brew-feedback-emoji">👍</text>
-          <text class="brew-feedback-label">好喝</text>
-        </view>
-        <view class="brew-feedback-btn brew-feedback-bad" bindtap="onTasteBad">
-          <text class="brew-feedback-emoji">👎</text>
-          <text class="brew-feedback-label">难喝</text>
-        </view>
+    <text class="brew-feedback-title">这杯咖啡怎么样？</text>
+
+    <!-- Good / Bad buttons -->
+    <view class="brew-feedback-buttons">
+      <view class="brew-feedback-btn {{taste === 'good' ? 'brew-fb-selected' : ''}} brew-fb-good" data-taste="good" bindtap="onSelectTaste">
+        <text class="brew-feedback-emoji">👍</text>
+        <text class="brew-feedback-label">好喝</text>
+      </view>
+      <view class="brew-feedback-btn {{taste === 'bad' ? 'brew-fb-selected' : ''}} brew-fb-bad" data-taste="bad" bindtap="onSelectTaste">
+        <text class="brew-feedback-emoji">👎</text>
+        <text class="brew-feedback-label">难喝</text>
       </view>
     </view>
 
-    <view wx:else class="brew-bad-reasons">
-      <text class="brew-feedback-title">哪里不好？</text>
+    <!-- Quote display -->
+    <view wx:if="{{taste && quote}}" class="brew-quote">
+      <text class="brew-quote-text">{{quote}}</text>
+    </view>
+
+    <!-- Bad reasons (animated expand) -->
+    <view class="brew-bad-expand {{taste === 'bad' ? 'expanded' : ''}}">
+      <text class="brew-bad-hint">哪里不好？</text>
       <view class="brew-reason-options">
-        <view class="brew-reason-chip {{badReasons.indexOf('too_bitter') >= 0 ? 'selected' : ''}}"
-          data-reason="too_bitter" bindtap="onToggleBadReason">
+        <view class="brew-reason-chip {{isBitterSelected ? 'selected' : ''}}"
+          bindtap="onToggleBitter">
           <text>太苦</text>
         </view>
-        <view class="brew-reason-chip {{badReasons.indexOf('too_sour') >= 0 ? 'selected' : ''}}"
-          data-reason="too_sour" bindtap="onToggleBadReason">
+        <view class="brew-reason-chip {{isSourSelected ? 'selected' : ''}}"
+          bindtap="onToggleSour">
           <text>太酸</text>
         </view>
+        <view class="brew-reason-chip {{otherSelected ? 'selected' : ''}}"
+          bindtap="onToggleOther">
+          <text>其他</text>
+        </view>
       </view>
-      <view class="brew-custom-reason">
-        <input class="brew-custom-input" placeholder="其他原因..." value="{{customReason}}" bindinput="onCustomReasonInput" />
+      <view class="brew-custom-expand {{otherSelected ? 'expanded' : ''}}">
+        <input class="brew-custom-input" placeholder="请输入原因..." value="{{customReason}}" bindinput="onCustomReasonInput" />
       </view>
-      <view class="brew-submit-bad {{saving ? 'disabled' : ''}}" bindtap="onSubmitBadFeedback">
-        <text>{{saving ? '保存中...' : '提交反馈'}}</text>
+    </view>
+
+    <!-- Submit button -->
+    <view wx:if="{{taste}}" class="brew-submit-wrap visible">
+      <view class="brew-submit-btn {{saving ? 'disabled' : ''}}" bindtap="onSubmitFeedback">
+        <text>{{saving ? '保存中...' : '提交'}}</text>
       </view>
+    </view>
+
+    <!-- Skip button (round, fixed bottom-left) -->
+    <view class="brew-skip-fab" bindtap="onSkipFeedback">
+      <text class="brew-skip-text">跳过</text>
     </view>
   </view>
 
-  <!-- Back button (always visible except during timer) -->
-  <view wx:if="{{state !== 'C' || timerDone}}" class="brew-back" bindtap="onGoBack">
+  <!-- Back button (visible in A, B, and D states; not during timer C) -->
+  <view wx:if="{{state === 'A' || state === 'B'}}" class="brew-back" bindtap="onGoBack">
     <text class="brew-back-text">← 返回</text>
   </view>
 </view>

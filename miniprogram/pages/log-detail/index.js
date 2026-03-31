@@ -48,7 +48,27 @@ Page({
       if (!log) {
         throw new Error('记录不存在或已被删除')
       }
-      this.setData({ log, loading: false, loadError: false })
+      const goodQuotes = [
+        '美好的一天从一杯好咖啡开始 ☕',
+        '这杯咖啡值得被记住 ✨',
+        '完美萃取，咖啡师本人 👏',
+        '生活需要这样的小确幸 🌟',
+        '味蕾的奖赏，继续保持 💫',
+      ]
+      const badQuotes = [
+        '每一次尝试都是进步的阶梯 💪',
+        '好咖啡需要反复调试，再来一杯 🔄',
+        '调整参数，下一杯会更好 ⚙️',
+        '咖啡的乐趣在于探索 🧭',
+        '失败是成功的咖啡渣 ☕',
+      ]
+      let tasteQuote = ''
+      if (log.taste === 'good') {
+        tasteQuote = goodQuotes[Math.floor(Math.random() * goodQuotes.length)]
+      } else if (log.taste === 'bad') {
+        tasteQuote = badQuotes[Math.floor(Math.random() * badQuotes.length)]
+      }
+      this.setData({ log, tasteQuote, loading: false, loadError: false })
     } catch (err) {
       console.error('Load log failed:', err)
       const errorMsg = app.getErrorMessage(err)

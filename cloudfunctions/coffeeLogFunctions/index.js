@@ -242,8 +242,12 @@ async function getBrewRecipe(event) {
   try {
     const { data } = await db.collection('brew_recipes')
       .where({ technique })
+      .limit(1)
       .get()
-    return { success: true, data }
+    if (data.length === 0) {
+      return { success: false, error: '未找到该冲煮手法的配方' }
+    }
+    return { success: true, data: data[0] }
   } catch (err) {
     return { success: false, error: err.message }
   }

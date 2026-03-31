@@ -148,41 +148,53 @@
 
     <!-- Timer running / paused -->
     <view wx:else class="brew-timer-wrap">
-      <view class="brew-step-display" wx:if="{{currentStep}}">
-        <text class="brew-step-action">{{currentStep.label}}</text>
-        <text class="brew-step-desc">{{currentStep.description}}</text>
-        <text class="brew-step-pattern" wx:if="{{currentStep.pourPattern}}">
-          {{currentStep.pourPattern === 'center' ? '中心注水' : '绕圈注水'}}
-        </text>
-      </view>
-
-      <view wx:if="{{!currentStep && steps.length === 0}}" class="brew-step-display">
-        <text class="brew-step-action">冲煮中</text>
-        <text class="brew-step-desc">未加载到步骤数据</text>
-      </view>
-
-      <view wx:if="{{timerPaused}}" class="brew-paused-badge">
-        <text>已暂停</text>
-      </view>
-
-      <view class="brew-timer-display">
-        <text class="brew-timer-value">{{f.formatTime(elapsedTime)}}</text>
-        <text class="brew-timer-total">/ {{f.formatTime(totalTime)}}</text>
-      </view>
-
-      <view class="brew-progress-wrap">
-        <view class="brew-progress-bar">
-          <view class="brew-progress-fill" style="width: {{totalTime > 0 ? (elapsedTime / totalTime * 100) : 0}}%"></view>
+      <!-- Top: step card (below capsule button) -->
+      <view class="brew-step-top" style="padding-top: {{capsuleBottom + 8}}px;">
+        <view class="brew-step-display" wx:if="{{currentStep}}">
+          <text class="brew-step-action">{{currentStep.label}}</text>
+          <text class="brew-step-desc">{{currentStep.description}}</text>
+          <text class="brew-step-pattern" wx:if="{{currentStep.pourPattern}}">
+            {{currentStep.pourPattern === 'center' ? '中心注水' : '绕圈注水'}}
+          </text>
+          <text wx:if="{{stepTargetWater > 0}}" class="brew-step-target">注水至 {{stepTargetWater}}ml</text>
         </view>
-        <view class="brew-step-markers">
-          <view class="brew-step-marker" wx:for="{{steps}}" wx:key="startTime"
-            style="left: {{totalTime > 0 ? (item.startTime / totalTime * 100) : 0}}%"
-            wx:if="{{item.startTime > 0}}">
+
+        <view wx:if="{{!currentStep && steps.length === 0}}" class="brew-step-display">
+          <text class="brew-step-action">冲煮中</text>
+          <text class="brew-step-desc">未加载到步骤数据</text>
+        </view>
+      </view>
+
+      <!-- Center: timer + progress (always centered) -->
+      <view class="brew-timer-center">
+        <view class="brew-paused-overlay" wx:if="{{timerPaused}}">
+          <text>已暂停</text>
+        </view>
+
+        <view class="brew-timer-display">
+          <text class="brew-timer-value">{{f.formatTime(elapsedTime)}}</text>
+          <text class="brew-timer-total">/ {{f.formatTime(totalTime)}}</text>
+        </view>
+
+        <view class="brew-progress-wrap">
+          <view class="brew-progress-bar">
+            <view class="brew-progress-fill" style="width: {{totalTime > 0 ? (elapsedTime / totalTime * 100) : 0}}%"></view>
+          </view>
+          <view class="brew-step-markers">
+            <view class="brew-step-marker" wx:for="{{steps}}" wx:key="startTime"
+              style="left: {{totalTime > 0 ? (item.startTime / totalTime * 100) : 0}}%"
+              wx:if="{{item.startTime > 0}}">
+            </view>
           </view>
         </view>
+
+        <view class="brew-water-info">
+          <text class="brew-water-value">💧 {{currentWater}}ml</text>
+        </view>
       </view>
 
-      <view class="brew-steps-info">
+      <!-- Bottom: step counter -->
+      <view class="brew-step-bottom">
         <text class="brew-step-counter">步骤 {{currentStepIndex + 1}} / {{steps.length}}</text>
       </view>
     </view>

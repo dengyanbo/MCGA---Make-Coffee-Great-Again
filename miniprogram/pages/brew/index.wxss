@@ -140,27 +140,50 @@
 
 /* State C — Timer */
 .brew-state-c {
-  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  flex: 1; display: flex; flex-direction: column;
   padding: 0 40rpx 200rpx; overflow: hidden;
+  position: relative;
 }
 
-.brew-timer-wrap { display: flex; flex-direction: column; align-items: center; }
+.brew-timer-wrap {
+  flex: 1; position: relative;
+}
+
+/* Top: step card pinned below capsule */
+.brew-step-top {
+  width: 100%;
+}
 
 .brew-step-display {
-  text-align: center; margin-bottom: 48rpx; background: #FFFFFF;
-  padding: 32rpx 40rpx; border-radius: 20rpx; width: 100%; box-sizing: border-box;
+  text-align: center; background: #FFFFFF;
+  padding: 24rpx 32rpx; border-radius: 20rpx; width: 100%; box-sizing: border-box;
 }
 
-.brew-step-action { font-size: 44rpx; font-weight: 700; color: #1C1C1E; display: block; }
-.brew-step-desc { font-size: 26rpx; color: #8E8E93; margin-top: 10rpx; display: block; }
+.brew-step-action { font-size: 40rpx; font-weight: 700; color: #1C1C1E; display: block; }
+.brew-step-desc { font-size: 26rpx; color: #8E8E93; margin-top: 8rpx; display: block; }
 
 .brew-step-pattern {
   font-size: 24rpx; color: #636366; background: #F2F2F7;
-  padding: 8rpx 24rpx; border-radius: 20rpx; display: inline-block; margin-top: 16rpx;
+  padding: 6rpx 24rpx; border-radius: 20rpx; display: inline-block; margin-top: 12rpx;
 }
 
-.brew-paused-badge { margin-bottom: 16rpx; }
-.brew-paused-badge text {
+.brew-step-target {
+  font-size: 28rpx; color: #1C1C1E; font-weight: 600;
+  display: block; margin-top: 12rpx;
+}
+
+/* Center: timer + progress (absolutely centered in container) */
+.brew-timer-center {
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.brew-paused-overlay {
+  position: absolute; top: -48rpx; left: 50%; transform: translateX(-50%);
+}
+.brew-paused-overlay text {
   font-size: 24rpx; color: #8E8E93; background: #E5E5EA;
   padding: 6rpx 28rpx; border-radius: 16rpx; font-weight: 600;
 }
@@ -190,7 +213,12 @@
   background: #C7C7CC; border-radius: 2rpx; transform: translateX(-50%);
 }
 
-.brew-steps-info { margin-top: 20rpx; }
+.brew-water-info { margin-top: 20rpx; }
+.brew-water-value { font-size: 28rpx; color: #3A3A3C; font-weight: 600; }
+
+.brew-step-bottom {
+  position: absolute; bottom: 20rpx; left: 0; right: 0; text-align: center;
+}
 .brew-step-counter { font-size: 24rpx; color: #AEAEB2; }
 
 /* Bottom controls — fixed at bottom, full width, text only */

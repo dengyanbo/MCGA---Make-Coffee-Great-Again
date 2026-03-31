@@ -53,6 +53,8 @@ Page({
     currentStepIndex: 0,
     currentStep: null,
     timerDone: false,
+    currentWater: 0,
+    stepTargetWater: 0,
 
     // State D feedback
     taste: '',
@@ -69,9 +71,14 @@ Page({
     tempPickerIndex: [0],
 
     animateIn: false,
+    capsuleBottom: 0,
   },
 
   async onLoad() {
+    // Get capsule button position for safe area
+    const menuBtn = wx.getMenuButtonBoundingClientRect()
+    const capsuleBottom = menuBtn.top + menuBtn.height
+
     const tempValues = []
     for (let t = 80; t <= 100; t++) tempValues.push(t)
     const tempIdx = tempValues.indexOf(93)
@@ -84,6 +91,7 @@ Page({
     const grindIdx = grindSizeValues.indexOf(defaultGrind)
 
     this.setData({
+      capsuleBottom,
       tempValues,
       tempPickerIndex: [tempIdx >= 0 ? tempIdx : 13],
       grindSizeValues,
@@ -483,6 +491,7 @@ Page({
           elapsedTime: this.data.totalTime,
           timerRunning: false,
           timerDone: true,
+          currentWater: this._calcWater(this.data.totalTime),
         })
         return
       }
@@ -497,8 +506,58 @@ Page({
         elapsedTime: elapsed,
         currentStepIndex: stepIdx,
         currentStep: steps[stepIdx] || null,
+        currentWater: this._calcWater(elapsed),
+        stepTargetWater: this._calcStepTargetWater(stepIdx),
       })
     }, 1000)
+  },
+
+  /**
+   * Calculate cumulative water at a given time.
+   * Pour steps have waterAmount — water increases linearly during the pour interval.
+   * Wait steps — water stays constant.
+   */
+  _calcWater(elapsed) {
+    const steps = this.data.steps
+    if (!steps || steps.length === 0) return 0
+    let water = 0
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i]
+      const stepStart = step.startTime || 0
+      const stepEnd = (i < steps.length - 1) ? steps[i + 1].startTime : this.data.totalTime
+      const stepWater = step.waterAmount || 0
+      if (!stepWater || stepWater <= 0) {
+        // Wait step or no water — skip
+        if (elapsed < stepStart) break
+        continue
+      }
+      // Pour step with water
+      if (elapsed <= stepStart) break
+      if (elapsed >= stepEnd) {
+        water += stepWater
+      } else {
+        // Mid-pour: linearly interpolate
+        const duration = stepEnd - stepStart
+        const progress = (elapsed - stepStart) / (duration || 1)
+        water += Math.round(stepWater * progress)
+        break
+      }
+    }
+    return Math.round(water)
+  },
+
+  /** Cumulative water target at end of current step (if pouring) or 0 */
+  _calcStepTargetWater(stepIdx) {
+    const steps = this.data.steps
+    if (!steps || stepIdx < 0 || stepIdx >= steps.length) return 0
+    const step = steps[stepIdx]
+    if (!step.waterAmount || step.waterAmount <= 0) return 0
+    // Sum all water up to and including this step
+    let total = 0
+    for (let i = 0; i <= stepIdx; i++) {
+      total += steps[i].waterAmount || 0
+    }
+    return Math.round(total)
   },
 
   // Pause / Resume / Stop

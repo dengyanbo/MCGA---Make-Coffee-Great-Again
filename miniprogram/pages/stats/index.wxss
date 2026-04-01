@@ -2,6 +2,44 @@
   min-height: 100vh;
 }
 
+/* Stats empty state — iOS 26 style bar chart icon */
+.stats-empty-icon {
+  width: 120rpx;
+  height: 120rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10rpx;
+  margin-bottom: 32rpx;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  border-radius: 28rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+  border: 0.5rpx solid rgba(0, 0, 0, 0.04);
+}
+
+.stats-empty-bar {
+  width: 18rpx;
+  border-radius: 6rpx;
+  background: #D1D1D6;
+}
+
+.stats-bar-1 {
+  height: 36%;
+  background: #C7C7CC;
+}
+
+.stats-bar-2 {
+  height: 65%;
+  background: #AEAEB2;
+}
+
+.stats-bar-3 {
+  height: 48%;
+  background: #D1D1D6;
+}
+
 .summary-row {
   display: flex;
   gap: 20rpx;

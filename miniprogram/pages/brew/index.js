@@ -139,8 +139,16 @@ Page({
       defaultGrinder = grinderList[0]
     }
 
-    // Bean default: last used > empty
+    // Bean default: last used > first in list > empty
     const lastBean = lastParams.beanName || ''
+    let defaultBean = ''
+    if (lastBean && beanList.includes(lastBean)) {
+      defaultBean = lastBean
+    } else if (lastBean) {
+      defaultBean = lastBean
+    } else if (beanList.length > 0) {
+      defaultBean = beanList[0]
+    }
 
     // FilterCup default: last used > first in list > empty
     const lastFilterCup = lastParams.filterCup || ''
@@ -159,8 +167,8 @@ Page({
       grinderModel: defaultGrinder,
       showGrinderInput: grinderList.length === 0,
       beanList,
-      beanName: lastBean,
-      showBeanInput: beanList.length === 0 && !lastBean,
+      beanName: defaultBean,
+      showBeanInput: beanList.length === 0 && !defaultBean,
     })
 
     // Load recipe names for default technique
@@ -659,6 +667,19 @@ Page({
   onSkipFeedback() {
     this.setData({ taste: '' })
     this._saveLog()
+  },
+
+  onAbandonRecord() {
+    wx.showModal({
+      title: '放弃记录',
+      content: '确定要放弃记录本次冲煮吗？数据将不会保存。',
+      confirmColor: '#1C1C1E',
+      success: (res) => {
+        if (res.confirm) {
+          wx.reLaunch({ url: '/pages/index/index' })
+        }
+      }
+    })
   },
 
   async _saveLog() {

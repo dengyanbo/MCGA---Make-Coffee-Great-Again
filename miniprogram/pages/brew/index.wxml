@@ -266,9 +266,14 @@
       </view>
     </view>
 
-    <!-- Skip button (round, fixed bottom-left) -->
+    <!-- Abandon record button (round, fixed bottom-left) -->
+    <view class="brew-abandon-fab" bindtap="onAbandonRecord">
+      <text class="brew-abandon-text">放弃记录</text>
+    </view>
+
+    <!-- Skip button (round, fixed bottom-right) -->
     <view class="brew-skip-fab" bindtap="onSkipFeedback">
-      <text class="brew-skip-text">跳过</text>
+      <text class="brew-skip-text">跳过评价</text>
     </view>
   </view>
 

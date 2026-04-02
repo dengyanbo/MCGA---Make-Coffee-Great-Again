@@ -151,15 +151,13 @@
 
     <!-- Timer running / paused -->
     <view wx:else class="brew-timer-wrap">
-      <!-- Top: step card (below capsule button) -->
+      <!-- Top: recipe name + step card (below capsule button) -->
       <view class="brew-step-top" style="padding-top: {{capsuleBottom + 8}}px;">
+        <text class="brew-recipe-name">{{selectedRecipe || techniqueLabels[brewTechnique] || '冲煮中'}}</text>
         <view class="brew-step-display" wx:if="{{currentStep}}">
           <text class="brew-step-action">{{currentStep.label}}</text>
+          <text class="brew-step-detail" wx:if="{{currentStep.pourPattern || stepTargetWater > 0}}">{{currentStep.pourPattern === 'center' ? '中心注水' : currentStep.pourPattern === 'circle' ? '绕圈注水' : ''}}{{currentStep.pourPattern && stepTargetWater > 0 ? ' · ' : ''}}{{stepTargetWater > 0 ? '注水至 ' + stepTargetWater + 'ml' : ''}}</text>
           <text class="brew-step-desc">{{currentStep.description}}</text>
-          <text class="brew-step-pattern" wx:if="{{currentStep.pourPattern}}">
-            {{currentStep.pourPattern === 'center' ? '中心注水' : '绕圈注水'}}
-          </text>
-          <text wx:if="{{stepTargetWater > 0}}" class="brew-step-target">注水至 {{stepTargetWater}}ml</text>
         </view>
 
         <view wx:if="{{!currentStep && steps.length === 0}}" class="brew-step-display">
@@ -192,7 +190,7 @@
         </view>
 
         <view class="brew-water-info">
-          <text class="brew-water-value">💧 {{currentWater}}ml</text>
+          <text class="brew-water-value">💧 {{currentWater}}ml{{stepTargetWater > 0 ? ' / ' + stepTargetWater + 'ml' : ''}}</text>
         </view>
       </view>
 

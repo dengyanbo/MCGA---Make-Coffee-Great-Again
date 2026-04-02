@@ -153,14 +153,13 @@
 .brew-step-action { font-size: 40rpx; font-weight: 700; color: #1C1C1E; display: block; }
 .brew-step-desc { font-size: 26rpx; color: #8E8E93; margin-top: 8rpx; display: block; }
 
-.brew-step-pattern {
-  font-size: 24rpx; color: #636366; background: #F2F2F7;
-  padding: 6rpx 24rpx; border-radius: 20rpx; display: inline-block; margin-top: 12rpx;
+.brew-step-detail {
+  font-size: 32rpx; color: #1C1C1E; font-weight: 600; display: block; margin-top: 8rpx;
 }
 
-.brew-step-target {
-  font-size: 28rpx; color: #1C1C1E; font-weight: 600;
-  display: block; margin-top: 12rpx;
+.brew-recipe-name {
+  font-size: 24rpx; color: #AEAEB2; font-weight: 500;
+  display: block; text-align: center; margin-bottom: 12rpx;
 }
 
 /* Center: timer + progress (absolutely centered in container) */

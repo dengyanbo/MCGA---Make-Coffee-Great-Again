@@ -40,6 +40,7 @@ Page({
     grindSizePickerIndex: [0],
     brewTechnique: 'yidaoliu',
     techniqueLabels: { yidaoliu: '一刀流', sanduanshi: '三段式' },
+    roastLabels: { light: '浅烘', medium_light: '中浅', medium: '中度', medium_dark: '中深', dark: '深烘' },
     recipeNames: [],
     selectedRecipe: '',
     loadingRecipes: false,
@@ -55,6 +56,11 @@ Page({
     timerDone: false,
     currentWater: 0,
     stepTargetWater: 0,
+
+    // State B2 preview
+    previewSteps: [],
+    countdownValue: 5,
+    countdownPaused: false,
 
     // State D feedback
     taste: '',
@@ -130,6 +136,10 @@ Page({
       } catch (_) {}
     }
 
+    // Normalize beans to {name, roastLevel} objects
+    beanList = (beanList || []).map(b => typeof b === 'string' ? { name: b, roastLevel: '' } : b)
+    const beanNames = beanList.map(b => b.name)
+
     // Grinder default: last used > first in list > empty
     const lastGrinder = lastParams.grinderModel || ''
     let defaultGrinder = ''
@@ -142,12 +152,16 @@ Page({
     // Bean default: last used > first in list > empty
     const lastBean = lastParams.beanName || ''
     let defaultBean = ''
-    if (lastBean && beanList.includes(lastBean)) {
+    let defaultBeanRoast = ''
+    if (lastBean && beanNames.includes(lastBean)) {
       defaultBean = lastBean
+      const found = beanList.find(b => b.name === lastBean)
+      defaultBeanRoast = found ? found.roastLevel || '' : ''
     } else if (lastBean) {
       defaultBean = lastBean
     } else if (beanList.length > 0) {
-      defaultBean = beanList[0]
+      defaultBean = beanList[0].name
+      defaultBeanRoast = beanList[0].roastLevel || ''
     }
 
     // FilterCup default: last used > first in list > empty
@@ -168,6 +182,7 @@ Page({
       showGrinderInput: grinderList.length === 0,
       beanList,
       beanName: defaultBean,
+      beanRoastLevel: defaultBeanRoast,
       showBeanInput: beanList.length === 0 && !defaultBean,
     })
 
@@ -181,6 +196,10 @@ Page({
     if (this._timer) {
       clearInterval(this._timer)
       this._timer = null
+    }
+    if (this._countdownTimer) {
+      clearInterval(this._countdownTimer)
+      this._countdownTimer = null
     }
   },
 
@@ -402,7 +421,8 @@ Page({
       this.setData({ showBeanInput: true })
       return
     }
-    const itemList = [...list, '+ 添加新咖啡豆', '⚙ 管理设备']
+    const roastLabels = this.data.roastLabels
+    const itemList = [...list.map(b => b.roastLevel ? b.name + '·' + (roastLabels[b.roastLevel] || '') : b.name), '+ 添加新咖啡豆', '⚙ 管理设备']
     wx.showActionSheet({
       itemList,
       success: (res) => {
@@ -411,7 +431,8 @@ Page({
         } else if (res.tapIndex === list.length) {
           this.setData({ showBeanInput: true, beanInputValue: '' })
         } else {
-          this.setData({ beanName: list[res.tapIndex], showBeanInput: false })
+          const bean = list[res.tapIndex]
+          this.setData({ beanName: bean.name, beanRoastLevel: bean.roastLevel || '', showBeanInput: false })
         }
       }
     })
@@ -428,8 +449,8 @@ Page({
       return
     }
     const list = [...this.data.beanList]
-    if (!list.includes(value)) {
-      list.push(value)
+    if (!list.some(b => b.name === value)) {
+      list.push({ name: value, roastLevel: '' })
       app.globalData.beans = list
       wx.cloud.callFunction({
         name: 'coffeeLogFunctions',
@@ -439,6 +460,7 @@ Page({
     }
     this.setData({
       beanName: value,
+      beanRoastLevel: '',
       beanList: list,
       showBeanInput: false,
       beanInputValue: '',
@@ -468,26 +490,88 @@ Page({
 
       const recipe = result.data
       const steps = recipe.steps || []
+
+      // Build preview step descriptions
+      const previewSteps = steps.map((step, i) => {
+        const parts = []
+        if (step.pourPattern === 'center') parts.push('中心注水')
+        else if (step.pourPattern === 'circle') parts.push('绕圈注水')
+        if (step.waterAmount > 0) parts.push(step.waterAmount + 'ml')
+        const duration = (i < steps.length - 1 ? steps[i + 1].startTime : (recipe.totalTime || 180)) - (step.startTime || 0)
+        if (duration > 0) parts.push(duration + '秒')
+        return {
+          label: step.label || ('步骤 ' + (i + 1)),
+          meta: parts.join(' · ') || (step.description || ''),
+        }
+      })
+
+      // Store recipe data and go to preview state B2
+      this._pendingSteps = steps
+      this._pendingTotalTime = recipe.totalTime || 180
+
       this.setData({
-        state: 'C',
-        steps,
-        totalTime: recipe.totalTime || 180,
-        currentStepIndex: 0,
-        currentStep: steps.length > 0 ? steps[0] : null,
-        elapsedTime: 0,
-        timerRunning: true,
-        timerPaused: false,
-        timerDone: false,
+        state: 'B2',
+        previewSteps,
+        countdownValue: 5,
+        countdownPaused: false,
         animateIn: false,
       })
       wx.hideLoading()
       setTimeout(() => this.setData({ animateIn: true }), 50)
-      this._startTimer()
+      this._startCountdown()
     } catch (err) {
       wx.hideLoading()
       console.error('Failed to load recipe:', err)
       wx.showToast({ title: app.getErrorMessage(err), icon: 'none', duration: 2500 })
     }
+  },
+
+  _startCountdown() {
+    if (this._countdownTimer) clearInterval(this._countdownTimer)
+    this._countdownTimer = setInterval(() => {
+      if (this.data.countdownPaused) return
+      const val = this.data.countdownValue - 1
+      if (val <= 0) {
+        clearInterval(this._countdownTimer)
+        this._countdownTimer = null
+        this.setData({ countdownValue: 0 })
+        this._enterTimerState()
+        return
+      }
+      this.setData({ countdownValue: val })
+    }, 1000)
+  },
+
+  onCountdownTap() {
+    this.setData({ countdownPaused: !this.data.countdownPaused })
+  },
+
+  onPreviewBack() {
+    if (this._countdownTimer) {
+      clearInterval(this._countdownTimer)
+      this._countdownTimer = null
+    }
+    this.setData({ state: 'B', animateIn: false })
+    setTimeout(() => this.setData({ animateIn: true }), 50)
+  },
+
+  _enterTimerState() {
+    const steps = this._pendingSteps || []
+    const totalTime = this._pendingTotalTime || 180
+    this.setData({
+      state: 'C',
+      steps,
+      totalTime,
+      currentStepIndex: 0,
+      currentStep: steps.length > 0 ? steps[0] : null,
+      elapsedTime: 0,
+      timerRunning: true,
+      timerPaused: false,
+      timerDone: false,
+      animateIn: false,
+    })
+    setTimeout(() => this.setData({ animateIn: true }), 50)
+    this._startTimer()
   },
 
   _startTimer() {
@@ -602,6 +686,10 @@ Page({
     this._goToFeedback()
   },
 
+  onSkipRecord() {
+    wx.reLaunch({ url: '/pages/index/index' })
+  },
+
   _goToFeedback() {
     const quote = GOOD_QUOTES[Math.floor(Math.random() * GOOD_QUOTES.length)]
     this.setData({
@@ -698,6 +786,7 @@ Page({
       taste: this.data.taste || '',
       badReasons,
       beanName: this.data.beanName || '',
+      roastLevel: this.data.beanRoastLevel || '',
       brewTime: this.data.totalTime,
     }
 

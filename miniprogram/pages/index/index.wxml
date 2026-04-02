@@ -73,7 +73,7 @@
         data-id="{{item._id}}" bindtap="onTapLog">
         <view class="log-card-top">
           <view class="log-card-info">
-            <text class="bean-name">{{item.beanName || f.getBrewTitle(item)}}</text>
+            <text class="bean-name">{{item.beanName || f.getBrewTitle(item)}}{{item.roastLevel ? ' · ' + f.getRoast(item.roastLevel) : ''}}</text>
             <view class="tags">
               <text wx:if="{{item.taste === 'good'}}" class="tag tag-method">完美</text>
               <text wx:if="{{item.taste === 'bad' && item.badReasons}}" class="tag tag-reason" wx:for="{{item.badReasons}}" wx:for-item="reason" wx:key="*this">{{f.getBadReason(reason)}}</text>

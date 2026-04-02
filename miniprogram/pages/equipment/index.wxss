@@ -89,6 +89,49 @@
   opacity: 0.85;
 }
 
+/* Bean info with roast tag */
+.equip-bean-info {
+  flex: 1; display: flex; align-items: center; gap: 12rpx; min-width: 0;
+}
+
+.equip-roast-tag {
+  font-size: 22rpx; color: #8E8E93; background: #F2F2F7;
+  padding: 4rpx 14rpx; border-radius: 8rpx; flex-shrink: 0;
+}
+
+/* Roast level picker row */
+.equip-roast-row {
+  display: flex; align-items: center; gap: 16rpx;
+  padding-top: 16rpx;
+}
+
+.equip-roast-label {
+  font-size: 26rpx; color: #8E8E93; flex-shrink: 0;
+}
+
+.equip-roast-beans {
+  display: flex; gap: 16rpx;
+}
+
+.equip-roast-bean {
+  display: flex; align-items: center; justify-content: center;
+}
+
+.equip-roast-img {
+  width: 48rpx; height: 48rpx;
+  filter: grayscale(100%); opacity: 0.5;
+  transition: filter 0.2s, opacity 0.2s;
+}
+
+.equip-roast-bean.active .equip-roast-img {
+  filter: grayscale(0%); opacity: 1;
+}
+
+.equip-roast-text {
+  font-size: 24rpx; color: #8E8E93; flex-shrink: 0;
+  min-width: 56rpx; text-align: right; margin-left: auto;
+}
+
 .safe-bottom {
   height: 60rpx;
 }

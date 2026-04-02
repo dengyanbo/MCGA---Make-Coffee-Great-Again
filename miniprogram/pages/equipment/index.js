@@ -1,5 +1,18 @@
 const app = getApp()
 
+const ROAST_VALUES = ['light', 'medium_light', 'medium', 'medium_dark', 'dark']
+const ROAST_LEVELS = ['浅烘', '中浅', '中度', '中深', '深烘']
+const ROAST_LABELS = { light: '浅烘', medium_light: '中浅', medium: '中度', medium_dark: '中深', dark: '深烘' }
+
+/** Normalize beans: convert old string[] format to {name, roastLevel}[] */
+function normalizeBeans(beans) {
+  if (!beans || !Array.isArray(beans)) return []
+  return beans.map(b => {
+    if (typeof b === 'string') return { name: b, roastLevel: '' }
+    return { name: b.name || '', roastLevel: b.roastLevel || '' }
+  })
+}
+
 Page({
   data: {
     beans: [],
@@ -9,6 +22,10 @@ Page({
     newGrinder: '',
     newFilterCup: '',
     loading: true,
+    roastLevels: ROAST_LEVELS,
+    roastValues: ROAST_VALUES,
+    roastLabels: ROAST_LABELS,
+    newBeanRoastIndex: -1,
   },
 
   async onLoad() {
@@ -26,13 +43,14 @@ Page({
         data: { type: 'getEquipment' }
       })
       if (result && result.success && result.data) {
+        const beans = normalizeBeans(result.data.beans)
         this.setData({
-          beans: result.data.beans || [],
+          beans,
           grinders: result.data.grinders || [],
           filterCups: result.data.filterCups || [],
           loading: false,
         })
-        app.globalData.beans = result.data.beans || []
+        app.globalData.beans = beans
         app.globalData.grinders = result.data.grinders || []
         app.globalData.filterCups = result.data.filterCups || []
       }
@@ -64,15 +82,20 @@ Page({
 
   // Bean
   onNewBeanInput(e) { this.setData({ newBean: e.detail.value }) },
+  onPickNewBeanRoast(e) {
+    const idx = Number(e.currentTarget.dataset.level)
+    this.setData({ newBeanRoastIndex: idx === this.data.newBeanRoastIndex ? -1 : idx })
+  },
   onAddBean() {
     const val = this.data.newBean.trim()
     if (!val) return
-    if (this.data.beans.includes(val)) {
+    if (this.data.beans.some(b => b.name === val)) {
       wx.showToast({ title: '已存在', icon: 'none' })
       return
     }
-    const beans = [...this.data.beans, val]
-    this.setData({ beans, newBean: '' })
+    const roastLevel = this.data.newBeanRoastIndex >= 0 ? ROAST_VALUES[this.data.newBeanRoastIndex] : ''
+    const beans = [...this.data.beans, { name: val, roastLevel }]
+    this.setData({ beans, newBean: '', newBeanRoastIndex: -1 })
     this._save()
   },
   onDeleteBean(e) {

@@ -6,6 +6,13 @@ Page({
     loading: true,
     loadError: false,
     deleting: false,
+    roastImageMap: {
+      light: '/images/roast_levels/roast_light.png',
+      medium_light: '/images/roast_levels/roast_medium_light.png',
+      medium: '/images/roast_levels/roast_medium.png',
+      medium_dark: '/images/roast_levels/roast_medium_dark.png',
+      dark: '/images/roast_levels/roast_dark.png',
+    },
   },
 
   onLoad(options) {

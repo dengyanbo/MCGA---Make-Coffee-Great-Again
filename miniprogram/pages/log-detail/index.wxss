@@ -30,6 +30,31 @@
   margin-bottom: 8rpx;
 }
 
+.hero-bean-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.hero-roast-inline {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  flex-shrink: 0;
+}
+
+.hero-roast-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.hero-roast-label {
+  font-size: 26rpx;
+  color: #8E8E93;
+  font-weight: 500;
+}
+
 .hero-origin {
   font-size: 26rpx;
   color: #8E8E93;

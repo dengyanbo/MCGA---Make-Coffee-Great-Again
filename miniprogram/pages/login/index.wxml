@@ -1,4 +1,13 @@
 <view class="page-login">
+  <!-- Custom Navigation Bar with Back Button -->
+  <view class="login-custom-nav" style="padding-top: {{navBarTop}}px;">
+    <view class="login-nav-inner" style="height: {{navBarHeight}}px;">
+      <view class="login-nav-back" bindtap="onGoBack" style="height: {{navBarHeight}}px;">
+        <view class="login-nav-arrow"></view>
+      </view>
+    </view>
+  </view>
+
   <view class="login-bg">
     <!-- Logged-in state (from home button) -->
     <view wx:if="{{showLoggedInState}}" class="login-card">
@@ -35,6 +44,10 @@
       <button class="login-btn" bindtap="onLogin" disabled="{{logging}}">
         <text class="login-btn-icon">💬</text>
         <text>{{logging ? '登录中...' : '使用微信账号登录'}}</text>
+      </button>
+
+      <button class="cancel-btn" bindtap="onCancel">
+        <text>取消</text>
       </button>
 
       <text class="login-hint">登录后数据将关联到您的微信账号</text>

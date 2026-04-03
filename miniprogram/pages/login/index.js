@@ -7,9 +7,17 @@ Page({
     logging: false,
     showLoggedInState: false,
     nickname: '',
+    navBarTop: 0,
+    navBarHeight: 0,
   },
 
   onLoad(options) {
+    const menuBtn = wx.getMenuButtonBoundingClientRect()
+    this.setData({
+      navBarTop: menuBtn.top,
+      navBarHeight: menuBtn.height,
+    })
+
     // Already logged in — show account management
     if (app.globalData.isLoggedIn) {
       this.setData({
@@ -56,6 +64,14 @@ Page({
     } else {
       wx.reLaunch({ url: '/pages/index/index' })
     }
+  },
+
+  onGoBack() {
+    wx.navigateBack({ fail: () => wx.reLaunch({ url: '/pages/index/index' }) })
+  },
+
+  onCancel() {
+    wx.navigateBack({ fail: () => wx.reLaunch({ url: '/pages/index/index' }) })
   },
 
   onLogout() {
